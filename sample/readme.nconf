@@ -1,0 +1,152 @@
+# single-line comment
+/*
+    multi-line
+    comment
+*/
+
+top-level-parameter                 value
+
+/*
+    The sections (blocks) are grouped using curly braces { ... }.
+    Section name can be prepended by a key name and a list of optional parameters.
+    These parameters then will become a part of an inner block under an empty key name.
+    Note that you can't sepecify parameters without specifying a key name itself.
+*/
+
+my_section param1 param2 `param 3`
+{
+    /*
+        Blocks can be nested. If the key name is not specified, it will be assigned
+        a unique non-negative iteger number automatically, like this: 0, 1, 2, ...
+
+        The section below, thus, will be registered under a key of '0'
+    */
+    {
+        /*
+            Key names can consist of any Unicode symbols but whitespace
+            and curly braces.
+            Values can be any Unicode symbols. Just make sure you store your
+            configuration file as UTF-8 (natively supported by nconf parser)
+            or any other Unicode-enabled file format (in which case you will need
+            to read the file yorself and pass it to the parser as a string).
+        */
+        my-key                      value 1
+        my:key[1]                   value 2
+        anything!goes^#;~(2)        value 3
+        clé                         значение
+
+        /*
+            The following parameter can be later accessed as an array
+            (items are separated by whitespace) or as a single string
+            (items are joined using single space).
+        */
+        some_string_or_array        foo bar baz
+
+        /*
+            When you want to make whitespace part of an item, surround it with backticks.
+        */
+        another_string              `foo bar baz`   # this is always a single string
+
+        /*
+            Backticks ` ` indicate "raw" blocks, where whitespace and newlines
+            should be preserved. Note that they can be anywhere inside the string,
+            so two parameters below should give the same result:
+        */
+        whitespace_matters_1        `foo    bar`
+        whitespace_matters_2        foo`    `bar
+
+        /*
+            Inside backticks, one can use `{`, `}` and `#` symbols.
+        */
+        special_symbols             `foo { bar } #baz`
+
+        /*
+            Backticks also allow one to create multiline strings. You can make them nicely padded,
+            and when using nconf::to_string() method, the leading padding will be detected and removed
+            automatically.
+        */
+        multiline_string            `
+                                    foo             # this w\`i\ll be a part of the string, not a comment
+                                        bar
+                                        baz
+                                    etc
+                                    ` 
+
+        /* You can also put backticks on the same line, if you prefer. */
+
+        another_multiline_string   `foo
+                                        bar
+                                        baz
+                                    etc`
+
+        /*
+            In order to read a value as a boolean value, use nconf::as_boolean() method
+        */
+        boolean_true                YES             # or Y, ON, TRUE or 1
+        boolean_false               NO              # actually, just none of the above 'true' values
+        empty_boolean_flag                          # when no parameter provided, it defaults to 'YES'
+        
+        /*
+            To explictly set a value to an empty string, use double backticks:
+        */
+        empty_string                ``
+
+        /*
+            To emit backtick symbol itself, escape it with a backslash
+        */
+        backtick                    \`
+
+        /*
+            In other situations, backslash is a normal symbol,
+            which doesn't need to be escaped itself.
+        */
+        backslash                   \foo\bar
+
+        /*
+            Comments inside values or key names are allowed.
+            They are just ignored without splitting the surrounding text.
+        */
+        multiline_with_comment      He/* injected */llo,
+                                    wor/* comments */ld!
+    }
+
+    /*
+        Below is another entry in my_section block, which will be assigned the key name of '1'
+    */
+    {
+        /*
+            Using whitespace for key and value alignment is optional.
+            Just one space between key and value will be enough.
+        */
+        foo bar
+        etc pwd
+
+        /*
+            Whitespace before and after curly brackets is optional as well
+        */
+        baz{
+            etc{pwd xyz}
+        }
+    }
+}
+
+/*
+    Rules below are relevant for highlighting in Sublime Text;
+    they do not affect the parsing logic.
+
+    In Sublime Text highlighter, some key prefixes make
+    parameters colored differently for your convenience.
+    It's up to you whether to use this semantics or not
+    in your application.
+*/
+
+@inherit    /path/to/file   # "@" means some processing instruction
+-foo                        # "-" means something negative
++baz        param           # "+" means something positive
+
+/*
+    Also, parameters like %foo% are also highlighted
+    in a special way:
+*/
+
+param       foo %bar% baz
