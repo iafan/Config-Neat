@@ -90,7 +90,7 @@ Tools
 This script will read the configuration file from a pipe (or STDIN)
 and emit the parsed data structure created by Data::Dumper.
 This script can be used to validate the syntax of the configuration file
-and understand its insternal tree representation.
+and understand its internal tree representation.
 
 #### Usage:
 

@@ -17,18 +17,17 @@ my_section param1 param2 `param 3`
 {
     /*
         Blocks can be nested. If the key name is not specified, it will be assigned
-        a unique non-negative iteger number automatically, like this: 0, 1, 2, ...
+        a unique non-negative integer number automatically, like this: 0, 1, 2, ...
 
         The section below, thus, will be registered under a key of '0'
     */
     {
         /*
             Key names can consist of any Unicode symbols but whitespace
-            and curly braces.
-            Values can be any Unicode symbols. Just make sure you store your
-            configuration file as UTF-8 (natively supported by nconf parser)
-            or any other Unicode-enabled file format (in which case you will need
-            to read the file yorself and pass it to the parser as a string).
+            and curly braces. Values can be any Unicode symbols. Just make sure
+            you store your configuration file as UTF-8 (supported by Config::Neat
+            parser by default) or any other Unicode-enabled file format (in which case
+            you will need to read the file yorself and pass it to the parser as a string).
         */
         my-key                      value 1
         my:key[1]                   value 2
@@ -62,11 +61,11 @@ my_section param1 param2 `param 3`
 
         /*
             Backticks also allow one to create multiline strings. You can make them nicely padded,
-            and when using nconf::to_string() method, the leading padding will be detected and removed
-            automatically.
+            and when using Config::Neat to_string() method, the leading padding will be detected
+            and removed automatically.
         */
         multiline_string            `
-                                    foo             # this w\`i\ll be a part of the string, not a comment
+                                    foo             # this will be a part of the string, not a comment
                                         bar
                                         baz
                                     etc
@@ -80,11 +79,11 @@ my_section param1 param2 `param 3`
                                     etc`
 
         /*
-            In order to read a value as a boolean value, use nconf::as_boolean() method
+            In order to interpret a value as a boolean one, use Config::Neat as_boolean() method
         */
         boolean_true                YES             # or Y, ON, TRUE or 1
-        boolean_false               NO              # actually, just none of the above 'true' values
-        empty_boolean_flag                          # when no parameter provided, it defaults to 'YES'
+        boolean_false               NO              # actually, you can use any string except the ones above 
+        empty_boolean_flag                          # when no parameter provided, it defaults to 'YES' (i.e. works as a flag)
         
         /*
             To explictly set a value to an empty string, use double backticks:
@@ -97,17 +96,36 @@ my_section param1 param2 `param 3`
         backtick                    \`
 
         /*
-            In other situations, backslash is a normal symbol,
-            which doesn't need to be escaped itself.
+            Okay, how does one emits backslash followed by the backtick?
+            Should backspaces be escaped as well? No, they shouldn't
+            (because we want as little escaping as possible).
+            So this will be simply:
         */
-        backslash                   \foo\bar
+        backslash_and_backtick      \\`
+
+        /*
+            This means that in all other situations, backslash is a
+            normal symbol, which doesn't have to be escaped itself.
+            Windows-style paths or regular expressions will remain
+            clean and readable:
+        */
+        windows_style_path          C:\foo\bar
+        regular_expression          ^file\.ext$
 
         /*
             Comments inside values or key names are allowed.
-            They are just ignored without splitting the surrounding text.
+            They are just ignored without splitting the surrounding key name or value.
         */
         multiline_with_comment      He/* injected */llo,
                                     wor/* comments */ld!
+
+        /*
+            If you need to have / followed by * as a part of your value,
+            you can break these apart by using double backticks or an empty
+            comment:
+        */
+        comment_as_string_1         Value with a /``* comment */
+        comment_as_string_2         Value with a //**/* comment */
     }
 
     /*
@@ -134,8 +152,8 @@ my_section param1 param2 `param 3`
     Rules below are relevant for highlighting in Sublime Text;
     they do not affect the parsing logic.
 
-    In Sublime Text highlighter, some key prefixes make
-    parameters colored differently for your convenience.
+    In Sublime Text highlighter for Config::Neat, some key prefixes
+    will cause parameters to be colored differently for your convenience.
     It's up to you whether to use this semantics or not
     in your application.
 */
