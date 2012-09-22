@@ -218,6 +218,11 @@ sub parse {
                 next;
             }
 
+            if ($was_slash) {
+                $c = '';
+                process_char;
+            }
+
             $in_raw_mode = !$in_raw_mode;
             $value = '' if !defined $value and $in_raw_mode; # initialize as an empty string
 
