@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>comment</key>
+	<string>Config::Neat Syntax</string>
+	<key>fileTypes</key>
+	<array>
+		<string>nconf</string>
+	</array>
+	<key>foldingStartMarker</key>
+	<string>(/\*|(\{|\[|\()\s*$)</string>
+	<key>foldingStopMarker</key>
+	<string>(\*/|^\s*(\}|\]|\)))</string>
+	<key>keyEquivalent</key>
+	<string>^~N</string>
+	<key>name</key>
+	<string>Config-Neat</string>
+	<key>patterns</key>
+	<array>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language.boolean.true.nconf</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>Known constants that are considered TRUE</string>
+			<key>match</key>
+			<string>\s{2,}(YES|Y|ON|TRUE|1)\b</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language.boolean.false.nconf</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>Known constants that are considered FALSE</string>
+			<key>match</key>
+			<string>\s{2,}(NO|N|OFF|FALSE|0)\b</string>
+		</dict>
+		<dict>
+			<key>comment</key>
+			<string>Escaped backtick</string>
+			<key>match</key>
+			<string>\\`</string>
+			<key>name</key>
+			<string>constant.character.escape.nconf</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>`</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.begin.nconf</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>Text inside backticks</string>
+			<key>end</key>
+			<string>`</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.end.nconf</string>
+				</dict>
+			</dict>
+			<key>name</key>
+			<string>string.quoted</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>comment</key>
+					<string>Escaped backtick</string>
+					<key>match</key>
+					<string>\\`</string>
+					<key>name</key>
+					<string>constant.character.escape.nconf</string>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>(^|\s)#</string>
+			<key>comment</key>
+			<string>Single-line comments: #... (there should be a whitespace or beginning of the line before #)</string>
+			<key>end</key>
+			<string>$</string>
+			<key>name</key>
+			<string>comment.line.nconf</string>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>/\*</string>
+			<key>comment</key>
+			<string>Block comments: /* ... */</string>
+			<key>end</key>
+			<string>\*/</string>
+			<key>name</key>
+			<string>comment.block.nconf</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>variable.parameter.function.nconf</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>Different coloring for '@whatever' key names</string>
+			<key>match</key>
+			<string>(?:^|{)(?:\s*)(@)([^\s\/#{}`]+)(#[^\s\/#{}]+)?</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.operator.nconf</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>Different coloring for '-whatever' key names</string>
+			<key>match</key>
+			<string>(?:^|{)(?:\s*)(-)([^\s\/#{}`]+)(#[^\s\/#{}]+)?</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.function.nconf</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>Different coloring for '+whatever' key names</string>
+			<key>match</key>
+			<string>(?:^|{)(?:\s*)(\+)([^\s\/#{}`]+)(#[^\s\/#{}]+)?</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>support.constant.nconf</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>Generic coloring for key names</string>
+			<key>match</key>
+			<string>(?:^|{)(?:\s*)([^\s\/#{}`]+)(#[^\s\/#{}]+)?</string>
+		</dict>
+		<dict>
+			<key>comment</key>
+			<string>Curly braces: { ... }</string>
+			<key>match</key>
+			<string>\{|\}</string>
+			<key>name</key>
+			<string>meta.brace.curly.nconf</string>
+		</dict>
+		<dict>
+			<key>comment</key>
+			<string>%whatever% style macro highlighting</string>
+			<key>match</key>
+			<string>%.*?%</string>
+			<key>name</key>
+			<string>variable.parameter.nconf</string>
+		</dict>
+	</array>
+	<key>scopeName</key>
+	<string>source.nconf</string>
+	<key>uuid</key>
+	<string>1faa8f23-8f83-45cb-b566-a340924575c4</string>
+</dict>
+</plist>
