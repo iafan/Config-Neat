@@ -1,7 +1,8 @@
 {
     "comment": "Config::Neat Syntax", 
     "fileTypes": [
-        "nconf"
+        "nconf",
+        "neat"
     ], 
     "foldingStartMarker": "(/\\*|(\\{|\\[|\\()\\s*$)", 
     "foldingStopMarker": "(\\*/|^\\s*(\\}|\\]|\\)))", 

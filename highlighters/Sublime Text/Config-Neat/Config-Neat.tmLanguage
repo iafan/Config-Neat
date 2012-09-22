@@ -7,6 +7,7 @@
 	<key>fileTypes</key>
 	<array>
 		<string>nconf</string>
+		<string>neat</string>
 	</array>
 	<key>foldingStartMarker</key>
 	<string>(/\*|(\{|\[|\()\s*$)</string>
