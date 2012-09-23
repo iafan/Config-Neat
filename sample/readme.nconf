@@ -91,6 +91,12 @@ my_section param1 param2 `param 3`
         empty_string                ``
 
         /*
+            You can also use empty strings in arrays.
+            If you treat parameter as a string, it will be treated as ` foo   bar`
+        */
+        array_with_empty_strings    `` foo `` `` bar
+
+        /*
             To emit backtick symbol itself, escape it with a backslash
         */
         backtick                    \`

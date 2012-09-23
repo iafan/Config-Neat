@@ -12,14 +12,14 @@ use Tie::IxHash;
 # Initialize object
 #
 sub new {
-  my ($class) = @_;
+    my ($class) = @_;
 
-  my $self = {
-    'cfg' => {}
-  };
+    my $self = {
+      'cfg' => {}
+    };
 
-  bless $self, $class;
-  return $self;
+    bless $self, $class;
+    return $self;
 }
 
 # Given a string representation of the config, returns a parsed tree
@@ -28,6 +28,7 @@ sub parse {
 
     my $new = {};
     tie(%$new, 'Tie::IxHash');
+
     my @context = ($new);
 
     my $LINE_START    = 0;
@@ -131,6 +132,7 @@ sub parse {
              
             my $new = {};
             tie(%$new, 'Tie::IxHash');
+            
             $context[$#context]->{$key} = $new;
             push @context, $new;
 
@@ -218,13 +220,10 @@ sub parse {
                 next;
             }
 
-            if ($was_slash) {
-                $c = '';
-                process_char;
-            }
+            $c = '';
+            process_char;
 
             $in_raw_mode = !$in_raw_mode;
-            $value = '' if !defined $value and $in_raw_mode; # initialize as an empty string
 
         } elsif (($c eq ' ') or ($c eq "\t")) {
             if ($c eq "\t") {
