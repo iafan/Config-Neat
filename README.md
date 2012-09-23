@@ -71,16 +71,21 @@ It depends on [Tie::IxHash](http://search.cpan.org/~chorny/Tie-IxHash/) module a
     use Config::Neat;
 
     my $cfg = Config::Neat->new();
-    $cfg->parse_file('/path/to/myconfig.nconf');
+    my $data = $cfg->parse_file('/path/to/myconfig.nconf');
 
-    # now $cfg contains a parsed hash tree which you can examine
+    # now $data contains a parsed hash tree which you can examine
 
     # consider the example config above
-    my $list = $cfg->{'server'}->{'supported_mime_types'};
-    # $list now is: ['text/html', 'text/css', ... 'application/x-javascript']
+    
+    my $list = $data->{'server'}->{'supported_mime_types'};
+    #
+    # $list now is an array reference:
+    #     ['text/html', 'text/css', ..., 'application/x-javascript']
 
-    my $log_format = $cfg->as_string($cfg->{'server'}->{'log_format'});
-    # $log_format now is: '$remote_addr - $remote_user [$time] $status $size $request'
+    my $log_format = $cfg->as_string($data->{'server'}->{'log_format'});
+    #
+    # $log_format now is a scalar:
+    #     '$remote_addr - $remote_user [$time] $status $size $request'
 
 Tools
 -----
