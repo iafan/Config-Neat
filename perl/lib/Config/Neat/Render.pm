@@ -111,7 +111,7 @@ sub render {
             if (is_hash($value)) {
                 $contains_hash |= 1;
             } else {
-                $contains_scalar |= is_simple_array($value);
+                $contains_scalar |= is_scalar($value);
             }
             die "Mixing hashes with simple arrays/scalars within one node is not supported" if $contains_hash and $contains_scalar;
         }
