@@ -157,7 +157,7 @@ The output will be:
     foo    Hello, World!
 
 Note that hashes in Perl do not guarantee the correct order, so blocks may have individual parameters shuffled randomly.
-In order to specify a desired order, you can provide a reference to an ordered list of key names in the `sort` option:
+To sort the keys, you can provide a reference to an ordered list of key names in the `sort` option:
 
     ...
 
@@ -175,7 +175,7 @@ And now the output will be:
         etc    `foo bar` baz `` 1
     }
 
-Alternatively, setting `sort` to a true value will sort keys alphabetically.
+Alternatively, setting `sort` to a true value will just sort keys alphabetically.
 
 Tools
 -----
