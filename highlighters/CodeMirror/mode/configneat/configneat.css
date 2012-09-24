@@ -1,0 +1,7 @@
+.cm-s-default span.cm-keyword  {color: #08c; }
+.cm-s-default span.cm-variable {color: #000; }
+.cm-s-default span.cm-bracket  {color: #999; }
+.cm-s-default span.cm-quote    {color: #090; }
+.cm-s-default span.cm-comment  {color: #999; }
+.cm-s-default span.cm-string-2 {color: #c0f; }
+.cm-s-default span.cm-builtin  {color: #86f; }

@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>
+    <title>CodeMirror: Config::Neat mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="configneat.js"></script>
+    <link rel="stylesheet" href="configneat.css">
+    <style>.CodeMirror {border: 1px solid #ddd;}</style>
+    <link rel="stylesheet" href="../../doc/docs.css">
+  </head>
+  <body>
+    <h1>CodeMirror: Config::Neat mode</h1>
+    <form><textarea id="code" name="code">
+# test entries
+url_with_hash              http://www.domain.com/support#contact_form
+raw_string                 `foo { bar } # /* */ baz`
+escaped_backtick           \`
+                         
+
+/*
+    Global server configuration
+*/
+server
+{
+    listen                  8080
+    use_ssl                 YES     # boolean
+    debug                   NO      # boolean
+
+    log_format              $remote_addr - $remote_user [$time]
+                            $status $size $request
+
+    supported_mime_types    text/html text/css text/xml text/plain
+                            image/gif image/jpeg image/png image/x-icon
+                            application/x-javascript
+
+    signature              `<div>
+                                <p>My Server version 1.0</p>
+                            </div>`
+    /*
+        My virtual hosts
+    */
+    virtual_hosts
+    {
+
+        www.domain.com
+        {
+            root      /var/www/domain
+            ...
+        }
+
+        www.otherdomain.com
+        {
+            root      /var/www/otherdomain
+            ...
+        }
+    }
+}
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
+    </script>
+
+    <p><a href="https://github.com/iafan/Config-Neat">Config::Neat</a> is a clean and readable configuration file format.</p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-config-neat</code>.</p>
+
+  </body>
+</html>
