@@ -53,9 +53,26 @@ my $data = {
     ],
 };
 
-my $text1 = $r->render($data, {wrap_width => 30}); #
+my @order = qw(
+    word string_with_spaces simple_array wrappable_string
+    wrappable_array subsection_1 subsection_2 array_of_hashes
+
+    etc pwd
+
+    true_parameter false_parameter subtree
+
+    empty_string array_of_empty_strings
+);
+
+sub sort_desc { $b cmp $a };
+
+#my $sort = undef; # unsorted
+#my $sort = 1; # sorted alphabetically
+my $sort = \@order; # sort in the order
+
+my $text1 = $r->render($data, {sort => $sort});
 my $data1 = $c->parse($text1);
-my $text2 = $r->render($data1);
+my $text2 = $r->render($data1, {sort => $sort});
 if ($text1 ne $text2) {
     warn "WARNING: Text from two passes differs\n";
 

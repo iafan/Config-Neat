@@ -22,6 +22,9 @@ sub new {
 
         brace_under     =>  1, # if true, put the opening brace under the key name, not on the same line
         separate_blocks =>  1, # if true, surrond blocks with empty lines for better readability
+
+        sort            => undef, # can be a true value if you want to sort keys alphabetically
+                                  # or a reference to an array with an ordered list of key names
     };
 
     $options = {} unless $options;
@@ -67,6 +70,18 @@ sub render {
     my $wrap_width      =   $options->{wrap_width};
     my $brace_under     = !!$options->{brace_under};
     my $separate_blocks = !!$options->{separate_blocks};
+    my $sort            =   $options->{sort};
+    if (ref($sort) eq 'ARRAY') {
+        # convert an array into a hash with 0..n values
+        my %h;
+        @h{@$sort} = (0 .. scalar(@$sort) - 1);
+        $sort = \%h;
+    }
+
+    sub is_code {
+        my $node = shift;
+        return ref($node) eq 'CODE';
+    }
 
     sub is_hash {
         my $node = shift;
@@ -228,7 +243,16 @@ sub render {
         my $PARAM = 1;
         my $BLOCK = 2;
 
-        foreach my $key (keys %$node) {
+        my @keys = keys %$node;
+        if (!$array_mode and scalar(@keys) > 1) {
+            if (is_hash($sort)) {
+                @keys = sort { $sort->{$a} <=> $sort->{$b} } @keys;
+            } elsif ($sort) {
+                @keys = sort @keys;
+            }
+        }
+
+        foreach my $key (@keys) {
             my $val = $node->{$key};
             die "Keys should not conain whitespace" if ($key =~ m/\s/);
 

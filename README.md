@@ -156,6 +156,25 @@ The output will be:
     foo    Hello, World!
 
 Note that hashes in Perl do not guarantee the correct order, so blocks may have individual parameters shuffled randomly.
+In order to specify a desired order, you can provide a reference to an ordered list of key names in the `sort` option:
+
+    ...
+
+    my @order = qw(foo bar baz);
+
+    print $r->render($data, {sort => \@order});
+
+And now the output will be:
+
+    foo    Hello, World!
+    bar    1 2 3
+
+    baz
+    {
+        etc    `foo bar` baz `` 1
+    }
+
+Alternatively, setting `sort` to a true value will sort keys alphabetically.
 
 Tools
 -----
