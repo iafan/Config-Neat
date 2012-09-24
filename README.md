@@ -98,7 +98,7 @@ This module allows you render Config::Neat-compatible structures from your data
 1. When you need to convert your old configuration files to a new format
    (and then manually tweak the output).
 2. When you want to dump some data for diff purposes or just for reading.
-3. When readability of your output is more important than knoing original
+3. When readability of your output is more important than knowing original
    data types of each node in your data output.
 
 ### When shoud I NOT use it?
@@ -107,7 +107,7 @@ Do not use it for arbitrary data serialization/desrialization.
 JSON and YAML will work better for this kind of task.
 
 Why? Because Config::Neat was primarily designed to allow easier configuration
-file authoring and reading, and uses relaxed syntax where strings treated like
+file authoring and reading, and uses relaxed syntax where strings are treated like
 space-separated arrays (and vice versa), and where there's no strict definition
 for boolean types, no null values, etc.
 
@@ -122,6 +122,7 @@ In other words, when doing this:
     my $parsed_data = $c->parse($r->render($arbitrary_data));
 
 $parsed_data will almost always be different from $arbitrary_data.
+
 However, doing this immediately after:
 
     my $parsed_data_2 = $c->parse($r->render($parsed_data));
