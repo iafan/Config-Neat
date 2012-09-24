@@ -190,3 +190,15 @@ and understand its internal tree representation.
 #### Usage:
 
     perl dump_nconf.pl < config.nconf
+
+Syntax Highlighters
+------------
+
+There are two syntax highlighters available (see the `highlighters` folder) —
+for [Sublime Text](http://www.sublimetext.com/) desktop editor
+(also compatible with [TextMate](http://macromates.com/)), and for
+JavaScript-based editor called [CodeMirror](http://codemirror.net/).
+
+You can also use CodeMirror with Config::Neat highlighter to [statically highlight](http://codemirror.net/demo/runmode.html)
+configuration snippets/examples within web pages.
+
