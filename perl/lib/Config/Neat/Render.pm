@@ -136,7 +136,7 @@ sub render {
         my $i = 0;
         # sort keys numerically
         foreach my $key (sort { $a <=> $b } keys %$node) {
-            return undef if ($i++ != $key);
+            return undef if ($key + 0 ne $key) or ($i++ != $key);
         }
         return 1;
     }
@@ -239,8 +239,9 @@ sub render {
             die "Unsupported data type: '".ref($node)."'";
         }
 
+
         my $was = undef;
-        my $PARAM = 1;
+        my $PARAM = 1; 
         my $BLOCK = 2;
 
         my @keys = keys %$node;
