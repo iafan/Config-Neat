@@ -86,7 +86,7 @@ sub parse {
         } elsif ($mode == $WHITESPACE) {
             $mode = $VALUE;
             if ($first_value_pos == 0) {
-                $first_value_pos = $pos - 1; # -1 to allow for quote before the first value
+                $first_value_pos = $pos - 1; # -1 to allow for non-hanging backtick before the first value
             }
         }
 
