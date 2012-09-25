@@ -22,6 +22,8 @@ sub new {
 
         brace_under     =>  1, # if true, put the opening brace under the key name, not on the same line
         separate_blocks =>  1, # if true, surrond blocks with empty lines for better readability
+        align_all       =>  1, # if true, align all values in the configuration file
+                               # (by default values are aligned only within current block)
 
         sort            => undef, # can be a true value if you want to sort keys alphabetically
                                   # or a reference to an array with an ordered list of key names
@@ -65,11 +67,14 @@ sub render {
     $options = {} unless $options;
     %$options = (%{$self->{_options}}, %$options);
 
+    my $global_key_length = 0;
+
     my $indentation     =   $options->{indentation};
     my $key_spacing     =   $options->{key_spacing};
     my $wrap_width      =   $options->{wrap_width};
     my $brace_under     = !!$options->{brace_under};
     my $separate_blocks = !!$options->{separate_blocks};
+    my $align_all       = !!$options->{align_all};
     my $sort            =   $options->{sort};
     if (ref($sort) eq 'ARRAY') {
         # convert an array into a hash with 0..n values
@@ -119,12 +124,25 @@ sub render {
     }
 
     sub max_key_length {
-        my $node = shift;
+        my ($node, $indent, $recursive) = @_;
         die "Not a hash" unless is_hash($node);
 
         my $len = 0;
         foreach my $key (keys %$node) {
-            $len = length($key) if length($key) > $len;
+            my $subnode = $node->{$key};
+
+            if (is_array($subnode) and !is_simple_array($subnode)) {
+                $subnode = convert_array_to_hash($subnode);
+            }
+
+            if (!is_hash($subnode)) {
+                my $key_len = $indent + length($key);
+                $len = $key_len if $key_len > $len;
+
+            } elsif ($recursive) {
+                my $child_len = max_key_length($subnode, $indent + $indentation, $recursive);
+                $len = $child_len if $child_len > $len;
+            }
         }
         return $len;
     }
@@ -230,15 +248,15 @@ sub render {
             die "Can't render simple arrays as a main block content" if $simple_array;
             $array_mode = 1;
             $node = convert_array_to_hash($node);
+        }
 
-        } elsif (is_hash($node)) {
+        if (is_hash($node)) {
             $array_mode = hash_with_array_like_keys($node);
-            $key_length = max_key_length($node);
+            $key_length = $align_all ? $global_key_length : max_key_length($node, $indent);
 
         } else {
             die "Unsupported data type: '".ref($node)."'";
         }
-
 
         my $was = undef;
         my $PARAM = 1; 
@@ -261,7 +279,7 @@ sub render {
                 $text .= "\n" if ($was == $BLOCK) and $separate_blocks;
 
                 $text .= $space_indent .
-                         pad($key, $key_length) .
+                         pad($key, $key_length - $indent) .
                          (' ' x $key_spacing) .
                          render_scalar($val, $indent + $key_length + $key_spacing) .
                          "\n";
@@ -275,7 +293,7 @@ sub render {
                 $text .= "\n" if ($was == $BLOCK) and $separate_blocks;
 
                 $text .= $space_indent .
-                         pad($key, $key_length) .
+                         pad($key, $key_length - $indent) .
                          (' ' x $key_spacing) .
                          render_wrapped_array(\@a, $indent + $key_length + $key_spacing) .
                          "\n";
@@ -283,7 +301,7 @@ sub render {
                 $was = $PARAM;
 
             } else {
-                $text .= "\n" if defined($was) and $separate_blocks;
+                $text .= "\n" if $was and $separate_blocks;
 
                 $text .= $space_indent;
 
@@ -300,6 +318,11 @@ sub render {
             }
         }
         return $text;
+    }
+
+    if ($align_all) {
+        # calculate indent recursively
+        $global_key_length = max_key_length($data, 0, 1);
     }
 
     return render_node_recursively($data, 0);

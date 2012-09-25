@@ -64,15 +64,18 @@ my @order = qw(
     empty_string array_of_empty_strings
 );
 
-sub sort_desc { $b cmp $a };
-
 #my $sort = undef; # unsorted
 #my $sort = 1; # sorted alphabetically
 my $sort = \@order; # sort in the order
 
-my $text1 = $r->render($data, {sort => $sort});
+my $options = {
+    sort      => $sort,
+    align_all => 1,
+};
+
+my $text1 = $r->render($data, $options);
 my $data1 = $c->parse($text1);
-my $text2 = $r->render($data1, {sort => $sort});
+my $text2 = $r->render($data1, $options);
 if ($text1 ne $text2) {
     warn "WARNING: Text from two passes differs\n";
 
