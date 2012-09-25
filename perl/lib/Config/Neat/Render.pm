@@ -67,20 +67,14 @@ sub render {
     $options = {} unless $options;
     %$options = (%{$self->{_options}}, %$options);
 
-    my $global_key_length = 0;
+    $options->{global_key_length} = 0;
 
-    my $indentation     =   $options->{indentation};
-    my $key_spacing     =   $options->{key_spacing};
-    my $wrap_width      =   $options->{wrap_width};
-    my $brace_under     = !!$options->{brace_under};
-    my $separate_blocks = !!$options->{separate_blocks};
-    my $align_all       = !!$options->{align_all};
-    my $sort            =   $options->{sort};
+    # convert an array into a hash with 0..n values
+    my $sort = $options->{sort};
     if (ref($sort) eq 'ARRAY') {
-        # convert an array into a hash with 0..n values
         my %h;
         @h{@$sort} = (0 .. scalar(@$sort) - 1);
-        $sort = \%h;
+        $options->{sort} = \%h;
     }
 
     sub is_code {
@@ -124,7 +118,7 @@ sub render {
     }
 
     sub max_key_length {
-        my ($node, $indent, $recursive) = @_;
+        my ($node, $options, $indent, $recursive) = @_;
         die "Not a hash" unless is_hash($node);
 
         my $len = 0;
@@ -140,7 +134,7 @@ sub render {
                 $len = $key_len if $key_len > $len;
 
             } elsif ($recursive) {
-                my $child_len = max_key_length($subnode, $indent + $indentation, $recursive);
+                my $child_len = max_key_length($subnode, $options, $indent + $options->{indentation}, $recursive);
                 $len = $child_len if $child_len > $len;
             }
         }
@@ -174,7 +168,9 @@ sub render {
     }
 
     sub render_wrapped_array {
-        my ($array, $indent) = @_;
+        my ($array, $options, $indent) = @_;
+    
+        my $wrap_width = $options->{wrap_width};
 
         my @a;
         my $line = '';
@@ -199,7 +195,7 @@ sub render {
     }
 
     sub render_scalar {
-        my ($scalar, $indent, $should_escape) = @_;
+        my ($scalar, $options, $indent, $should_escape) = @_;
 
         # dereference scalar
         $scalar = $$scalar if ref($scalar) eq 'SCALAR';
@@ -222,7 +218,7 @@ sub render {
 
         if (!$should_escape and $scalar) {
             my @a = split(/\s+/, $scalar);
-            return render_wrapped_array(\@a, $indent);
+            return render_wrapped_array(\@a, $options, $indent);
         }
 
         return $scalar;
@@ -235,11 +231,15 @@ sub render {
     }
 
     sub render_node_recursively {
-        my ($node, $indent) = @_;
+        my ($node, $options, $indent) = @_;
         my $text = '';
         my $simple_array;
         my $key_length = 0;
         my $array_mode;
+
+        my $key_spacing     =   $options->{key_spacing};
+        my $separate_blocks = !!$options->{separate_blocks};
+        my $sort            =   $options->{sort};
 
         my $space_indent = (' ' x $indent);
 
@@ -252,7 +252,7 @@ sub render {
 
         if (is_hash($node)) {
             $array_mode = hash_with_array_like_keys($node);
-            $key_length = $align_all ? $global_key_length : max_key_length($node, $indent);
+            $key_length = $options->{align_all} ? $options->{global_key_length} : max_key_length($node, $options, $indent);
 
         } else {
             die "Unsupported data type: '".ref($node)."'";
@@ -281,21 +281,21 @@ sub render {
                 $text .= $space_indent .
                          pad($key, $key_length - $indent) .
                          (' ' x $key_spacing) .
-                         render_scalar($val, $indent + $key_length + $key_spacing) .
+                         render_scalar($val, $options, $indent + $key_length + $key_spacing) .
                          "\n";
 
                 $was = $PARAM;
 
             } elsif (is_simple_array($val)) {
                 # escape individual array items
-                my @a = map { render_scalar($_, undef, 1) } @$val;
+                my @a = map { render_scalar($_, $options, undef, 1) } @$val;
 
                 $text .= "\n" if ($was == $BLOCK) and $separate_blocks;
 
                 $text .= $space_indent .
                          pad($key, $key_length - $indent) .
                          (' ' x $key_spacing) .
-                         render_wrapped_array(\@a, $indent + $key_length + $key_spacing) .
+                         render_wrapped_array(\@a, $options, $indent + $key_length + $key_spacing) .
                          "\n";
 
                 $was = $PARAM;
@@ -306,11 +306,11 @@ sub render {
                 $text .= $space_indent;
 
                 if (!$array_mode) {
-                    $text .= $brace_under ? "$key\n$space_indent" : "$key ";
+                    $text .= $options->{brace_under} ? "$key\n$space_indent" : "$key ";
                 }
 
                 $text .= "{\n" .
-                         render_node_recursively($val, $indent + $indentation) .
+                         render_node_recursively($val, $options, $indent + $options->{indentation}) .
                          $space_indent .
                          "}\n";
 
@@ -320,12 +320,12 @@ sub render {
         return $text;
     }
 
-    if ($align_all) {
+    if ($options->{align_all}) {
         # calculate indent recursively
-        $global_key_length = max_key_length($data, 0, 1);
+        $options->{global_key_length} = max_key_length($data, $options, 0, 1);
     }
 
-    return render_node_recursively($data, 0);
+    return render_node_recursively($data, $options, 0);
 } # end sub
 
 1; # return true
