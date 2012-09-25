@@ -281,7 +281,7 @@ sub render {
                 $text .= $space_indent .
                          pad($key, $key_length - $indent) .
                          (' ' x $key_spacing) .
-                         render_scalar($val, $options, $indent + $key_length + $key_spacing) .
+                         render_scalar($val, $options, $key_length + $key_spacing) .
                          "\n";
 
                 $was = $PARAM;
@@ -295,7 +295,7 @@ sub render {
                 $text .= $space_indent .
                          pad($key, $key_length - $indent) .
                          (' ' x $key_spacing) .
-                         render_wrapped_array(\@a, $options, $indent + $key_length + $key_spacing) .
+                         render_wrapped_array(\@a, $options, $key_length + $key_spacing) .
                          "\n";
 
                 $was = $PARAM;
