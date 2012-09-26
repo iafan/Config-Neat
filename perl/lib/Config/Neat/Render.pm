@@ -27,6 +27,7 @@ sub new {
 
         sort            => undef, # can be a true value if you want to sort keys alphabetically
                                   # or a reference to an array with an ordered list of key names
+        undefined_value => 'NO'   # default value to emit for undefined values 
     };
 
     $options = {} unless $options;
@@ -207,7 +208,7 @@ sub render {
         }
 
         if (!defined $scalar) {
-            $scalar = 'NO';
+            $scalar = $options->{undefined_value};
         } elsif ($scalar eq '') {
             $scalar = '``';
         }
