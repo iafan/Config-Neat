@@ -2,7 +2,7 @@
 
 package Config::Neat::Render;
 
-my $VERSION = '0.1';
+our $VERSION = '0.1';
 
 use strict;
 
