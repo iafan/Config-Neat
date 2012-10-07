@@ -342,7 +342,7 @@ sub as_string {
 sub as_boolean {
     my ($self, $node) = @_;
 
-    my $val = uc(as_string($node));
+    my $val = uc($self->as_string($node));
     return ($val eq 'YES') or ($val eq 'Y') or ($val eq 'ON') or ($val eq 'TRUE') or ($val eq '1');
 } # end sub
 
