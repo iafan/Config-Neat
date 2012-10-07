@@ -10,6 +10,7 @@ File 01.nconf:
 
     foo {
         bar         baz
+
         etc {
             pwd     1
         }
@@ -19,9 +20,11 @@ File 01.nconf:
 File 02.nconf:
 
     @inherit        01.nconf
+
     +foo {
         bar         replace
     }
+    
     -abc
 
 Resulting data structure will be equivalent to:
