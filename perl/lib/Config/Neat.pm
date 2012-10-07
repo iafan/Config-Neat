@@ -188,6 +188,7 @@ sub parse {
 
         } elsif ($c eq '/') {
             next if ($o->{mode} == $LINE_COMMENT);
+            next if (!$o->{was_asterisk} and $o->{mode} == $BLOCK_COMMENT);
 
             if ($o->{was_asterisk} and ($o->{mode} == $BLOCK_COMMENT)) {
                 $o->{mode} = $o->{previous_mode};
