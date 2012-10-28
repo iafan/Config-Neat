@@ -84,6 +84,7 @@ sub new {
 # and expand '@inherit' blocks
 sub parse_file {
     my ($self, $filename, $binmode) = @_;
+    $self->{cache} = {};
     $self->{binmode} = $binmode;
     $self->{orig_data} = $self->{cfg}->parse_file($filename, $binmode);
     return $self->expand_data($self->{orig_data}, dirname(rel2abs($filename)));
@@ -93,6 +94,7 @@ sub parse_file {
 # with expanded '@inherit' blocks
 sub parse {
     my ($self, $nconf, $dir) = @_;
+    $self->{cache} = {};
     $dir = dirname(rel2abs($0)) unless $dir;
     return $self->expand_data($nconf, $dir);
 }
