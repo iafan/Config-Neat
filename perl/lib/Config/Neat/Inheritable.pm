@@ -174,8 +174,9 @@ sub merge_data {
                 die "Key '$key' contains bogus data; expected an empty or true value" unless $self->{cfg}->as_boolean($data2->{$key});
                 delete $data1->{$1};
             } elsif ($key =~ m/^\+(.*)$/) {
-                $data1->{$1} = $self->merge_data($data1->{$1}, $data2->{$key}, $dir);
-                $data1->{$1} = $self->expand_data($data1->{$1}, $dir);
+                my $merge_key = $1;
+                $data1->{$merge_key} = $self->merge_data($data1->{$merge_key}, $data2->{$key}, $dir);
+                $data1->{$merge_key} = $self->expand_data($data1->{$merge_key}, $dir);
             } else {
                 $data1->{$key} = $data2->{$key};
                 $data1->{$key} = $self->expand_data($data1->{$key}, $dir);
