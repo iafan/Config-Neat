@@ -105,7 +105,7 @@ sub expand_data {
     tie(%$result, 'Tie::IxHash');
 
     if (ref($node) eq 'HASH' and exists $node->{'@inherit'}) {
-        die "The value of '\@inherit' must be a string or array" unless ref($node->{'@inherit'}) eq 'ARRAY';
+        die "The value of '\@inherit' must be a string or array" unless ref($node->{'@inherit'}) eq 'Config::Neat::Array';
 
         foreach my $from (@{$node->{'@inherit'}}) {
             my ($filename, $selector) = split('#', $from, 2);
@@ -171,7 +171,7 @@ sub merge_data {
     if (ref($data1) eq 'HASH' and ref($data2) eq 'HASH') {
         foreach my $key (keys %$data2) {
             if ($key =~ m/^-(.*)$/) {
-                die "Key '$key' contains bogus data; expected an empty or true value" unless $self->{cfg}->as_boolean($data2->{$key});
+                die "Key '$key' contains bogus data; expected an empty or true value" unless $data2->{$key}->as_boolean;
                 delete $data1->{$1};
             } elsif ($key =~ m/^\+(.*)$/) {
                 my $merge_key = $1;
@@ -182,7 +182,7 @@ sub merge_data {
                 $data1->{$key} = $self->expand_data($data1->{$key}, $dir);
             }
         }
-    } elsif (ref($data1) eq 'ARRAY' and ref($data2) eq 'ARRAY') {
+    } elsif (ref($data1) eq 'Config::Neat::Array' and ref($data2) eq 'Config::Neat::Array') {
         push(@$data1, @$data2);
     } else {
         $data1 = $data2;

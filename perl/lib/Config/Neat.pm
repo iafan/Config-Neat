@@ -6,6 +6,7 @@ our $VERSION = '0.1';
 
 use strict;
 
+use Config::Neat::Array;
 use Tie::IxHash;
 
 #
@@ -105,6 +106,7 @@ sub parse {
 
     sub end_of_value {
         my $o = shift;
+        bless $o->{values}, 'Config::Neat::Array'; # this will add helper functions to the array
 
         if ($o->{was_slash} or $o->{was_backslash}) {
             $o->{c} = '';
@@ -313,65 +315,6 @@ sub parse_file {
     close(CFG);
 
     return $self->parse($text);
-} # end sub
-
-# Given ['foo', 'bar', 'baz'] array reference, returns 'foo bar baz' string.
-# If string starts from a newline and the next line is indented, remove that amount of spaces
-# from each line and trim leading and trailing newline
-sub as_string {
-    my ($self, $node) = @_;
-
-    my $val = join(' ', @$node);
-    my $indent = undef;
-    while ($val =~ m/\n(\s+)/g) {
-        my $len = length($1);
-        $indent = $len unless defined $indent and $len > 0;
-        $indent = $len if $len > 0 and $indent > $len;
-    }
-    if ($indent > 0) {
-        $indent = ' ' x $indent;
-        $val =~ s/\n$indent/\n/sg;
-        $val =~ s/^\s*\n//s; # remove first single newline and preceeding whitespace
-        $val =~ s/\n\s*$//s; # remove last single newline and whitespace after it
-    }
-    return $val;
-} # end sub
-
-# Returns true if the string representation of a given array
-# evaluates case-insensitively to a known list of strings: YES, Y, ON, TRUE or 1;
-# otherwise, returns false
-sub as_boolean {
-    my ($self, $node) = @_;
-
-    my $val = uc($self->as_string($node));
-    return ($val eq 'YES') or ($val eq 'Y') or ($val eq 'ON') or ($val eq 'TRUE') or ($val eq '1');
-} # end sub
-
-# Given ['foo', 'bar', 'baz'] array and property name 'x', returns the following hash reference:
-#   {
-#       0 => {'x' => 'foo'},
-#       1 => {'x' => 'bar'},
-#       2 => {'x' => 'baz'}
-#   }
-sub as_hash {
-    my ($self, $arr, $name) = @_;
-    
-    die "Second parameter (name) not provided" unless defined $name;
-
-    # if the provided value is a hash, return it as is
-    return $arr if ref($arr) eq 'HASH';
-
-    die "First parameter must be an array" unless ref($arr) eq 'ARRAY';
-
-    my $result = {};
-    tie(%$result, 'Tie::IxHash');
-
-    my $n = 0;
-    foreach my $val (@$arr) {
-        $result->{$n++} = { $name => $val };
-    }
-
-    return $result;
 } # end sub
 
 1; # return true
