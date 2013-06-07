@@ -1,0 +1,16 @@
+foo
+{
+    bar         ARRAY
+    etc
+    {
+        *       ARRAY
+        pwd     STRING
+    }
+}
+
+path            STRING_OR_HASH
+{
+    *           STRING
+}
+
+data            DATA
