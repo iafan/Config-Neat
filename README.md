@@ -82,7 +82,7 @@ It depends on [Tie::IxHash](http://search.cpan.org/~chorny/Tie-IxHash/) module a
     # $list now is an array reference:
     #     ['text/html', 'text/css', ..., 'application/x-javascript']
 
-    my $log_format = $cfg->as_string($data->{'server'}->{'log_format'});
+    my $log_format = $data->{'server'}->{'log_format'}->as_string;
     #
     # $log_format now is a scalar:
     #     '$remote_addr - $remote_user [$time] $status $size $request'
