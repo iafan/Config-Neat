@@ -27,12 +27,19 @@ sub as_string {
 } # end sub
 
 # Returns true if the string representation of the array
-# evaluates case-insensitively to a known list of strings: YES, Y, ON, TRUE or 1
+# evaluates case-insensitively to a known list of positive boolean strings
 sub as_boolean {
     my ($self) = @_;
 
-    my $val = uc($self->as_string);
-    return ($val eq 'YES') or ($val eq 'Y') or ($val eq 'ON') or ($val eq 'TRUE') or ($val eq '1');
+    return ($self->as_string =~ m/^(YES|Y|ON|TRUE|1)$/i);
+} # end sub
+
+# Returns true if the string representation of the array
+# evaluates case-insensitively to a known list of positive or negative boolean strings
+sub is_boolean {
+    my ($self) = @_;
+
+    return ($self->as_string =~ m/^(YES|NO|Y|N|ON|OFF|TRUE|FALSE|1|0)$/i);
 } # end sub
 
 # Given ['foo', 'bar', 'baz'] as the contents of the array,
