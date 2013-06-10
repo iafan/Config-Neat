@@ -13,4 +13,17 @@ path            STRING_OR_HASH
     *           STRING
 }
 
+path2           ARRAY_OR_HASH
+{
+    *           ARRAY
+}
+
 data            DATA
+
+plugins
+{
+    *
+    {
+        name    STRING
+    }
+}

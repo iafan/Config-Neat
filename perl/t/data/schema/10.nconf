@@ -1,7 +1,0 @@
-foo {
-    bar         baz etc
-
-    etc {
-        pwd     1 2
-    }
-}
