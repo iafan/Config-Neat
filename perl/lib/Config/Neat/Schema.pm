@@ -112,11 +112,21 @@ sub validate_node {
         $schema_type = ($data_type eq 'HASH') ? 'HASH' : 'STRING';
     }
 
-    # data nodes of type ARRAY are converted to STRING automatically
+    # automatic casting from ARRAY to STRING
     if ($schema_type eq 'STRING' and $data_type eq 'ARRAY') {
         $parent_data->{$parent_data_key} = $data_node = $data_node->as_string;
-        $data_type = $self->get_node_type($data_node);
+        $data_type = $schema_type;
     }
+
+    # automatic casting from ARRAY to BOOLEAN
+    if ($schema_type eq 'BOOLEAN' and $data_type eq 'ARRAY') {
+        warn "Warning: '".$data_node->as_string."' is not a valid boolean number\n" unless $data_node->is_boolean;
+        $parent_data->{$parent_data_key} = $data_node = $data_node->as_boolean;
+        $data_type = $schema_type;
+    }
+
+    # skip (don't validate DATA nodes)
+    return 1 if ($schema_type eq 'DATA');
 
     if ($schema_type ne $data_type) {
         die "'$pathstr' is $data_type, while it is expected to be $schema_type";

@@ -27,3 +27,8 @@ plugins
         name    STRING
     }
 }
+
+options
+{
+    *           BOOLEAN
+}
