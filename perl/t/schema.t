@@ -35,8 +35,8 @@ eval { $s->validate($data) };
 like($@, qr|^'/foo/bar' is HASH, while it is expected to be ARRAY |, '02.nconf validation should fail because of "/foo/bar" node');
 
 _load_conf('03');
-eval { $s->validate($data) };
-like($@, qr|^'/foo/etc/some_key' is HASH, while it is expected to be ARRAY |, '03.nconf validation should fail because of "/foo/bar/some_key" node');
+$s->validate($data);
+ok(ref($data->{foo}->{etc}->{some_key}) eq 'ARRAY', '03.nconf: /foo/etc/some_key is now an array');
 
 _load_conf('04');
 _validate_conf('04');

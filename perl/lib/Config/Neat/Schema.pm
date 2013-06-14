@@ -59,9 +59,11 @@ use Tie::IxHash;
 # Initialize object
 #
 sub new {
-    my ($class) = @_;
+    my ($class, $data) = @_;
 
-    my $self = {};
+    my $self = {
+        schema => $data
+    };
 
     bless $self, $class;
     return $self;
@@ -100,13 +102,18 @@ sub validate_node {
     my $schema_type = $self->get_node_type($schema_node);
     my $data_type = $self->get_node_type($data_node);
 
-    if ($schema_type eq 'ARRAY') {
+    if ($schema_type eq 'STRING') {
+        # the node itself is already a scalar and contains the type definition
+        $schema_type = $schema_node;
+    } elsif ($schema_type eq 'ARRAY') {
         # the string representation of the node contains the type definition
         $schema_type = $schema_node->as_string;
     } elsif ($schema_type eq 'HASH' and defined $schema_node->{''}) {
         # if it's a hash, the the string representation of the node's default parameter
         # may contain the type definition override
-        $schema_type = $schema_node->{''}->as_string if exists $schema_node->{''};
+        my $val = $schema_node->{''};
+        $schema_type = $schema_node->{''}->as_string if ref($val) eq 'Config::Neat::Array';
+        $schema_type = $schema_node->{''} if ref(\$val) eq 'SCALAR';
     }
 
     # disambiguate fuzzy node schema types
@@ -134,7 +141,22 @@ sub validate_node {
     # skip (don't validate DATA nodes)
     return 1 if ($schema_type eq 'DATA');
 
-    if ($schema_type ne $data_type && !($schema_type eq 'ARRAY' and $data_type eq 'HASH')) {
+    # see if automatic casting from HASH to ARRAY is possible
+    # (if keys are named as '0', '1', '2', ... and go in the correct order)
+    my $cast_to_array;
+    if ($schema_type eq 'ARRAY' and $data_type eq 'HASH') {
+        my $n = 0;
+        $cast_to_array = 1;
+        foreach (keys %$data_node) {
+            if ($_ ne $n++) {
+                $cast_to_array = undef;
+                last;
+            }
+        }
+        $data_type = $schema_type if $cast_to_array;
+    }
+
+    if ($schema_type ne $data_type) {
         die "'$pathstr' is $data_type, while it is expected to be $schema_type";
     }
 
@@ -151,8 +173,7 @@ sub validate_node {
         }
     }
 
-    if ($schema_type eq 'ARRAY' and $data_type eq 'HASH') {
-        # cast hash to array
+    if ($cast_to_array) {
         my @a = values %$data_node;
         $parent_data->{$parent_data_key} = \@a;
     }
