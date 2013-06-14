@@ -13,6 +13,7 @@ $| = 1; # disable output buffering;
 use Test::More;
 
 use_ok('Config::Neat');
+use_ok('Config::Neat::Inheritable');
 use_ok('Config::Neat::Schema');
 
 my $c = Config::Neat->new();

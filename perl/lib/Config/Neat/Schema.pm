@@ -70,8 +70,14 @@ sub new {
 # Given file name, will read and store the schema file
 sub load {
     my ($self, $filename, $binmode) = @_;
-    my $c = Config::Neat->new();
+    my $c = Config::Neat::Inheritable->new();
     return $self->{schema} = $c->parse_file($filename, $binmode);
+}
+
+# Store loaded data as current schema
+sub set {
+    my ($self, $data) = @_;
+    $self->{schema} = $data;
 }
 
 # Validates provided data structure (parsed config file) against the previously loaded schema
