@@ -77,6 +77,10 @@ ok(
     !$data->{options}->{opt11} &&
     !$data->{options}->{opt12}, '08.nconf: all garbage boolean values are false');
 
+_load_conf('09');
+_validate_conf('09');
+ok(ref($data->{jobs}) eq 'ARRAY', '09.nconf: /jobs is now an array of objects');
+
 done_testing();
 
 sub _load_conf {

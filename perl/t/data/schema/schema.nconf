@@ -20,6 +20,14 @@ path2           ARRAY_OR_HASH
 
 data            DATA
 
+jobs            ARRAY
+{
+    *
+    {
+        name    STRING
+    }
+}
+
 plugins
 {
     *

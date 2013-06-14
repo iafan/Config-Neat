@@ -134,7 +134,7 @@ sub validate_node {
     # skip (don't validate DATA nodes)
     return 1 if ($schema_type eq 'DATA');
 
-    if ($schema_type ne $data_type) {
+    if ($schema_type ne $data_type && !($schema_type eq 'ARRAY' and $data_type eq 'HASH')) {
         die "'$pathstr' is $data_type, while it is expected to be $schema_type";
     }
 
@@ -149,7 +149,12 @@ sub validate_node {
                 $self->validate_node($schema_subnode, $data_node->{$key}, $data_node, $key, \@a);
             }
         }
-        return 1;
+    }
+
+    if ($schema_type eq 'ARRAY' and $data_type eq 'HASH') {
+        # cast hash to array
+        my @a = values %$data_node;
+        $parent_data->{$parent_data_key} = \@a;
     }
 
     return 1;
