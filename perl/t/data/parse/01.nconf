@@ -1,0 +1,6 @@
+/* comment */
+# comment
+test1   foo1
+test2   foo  bar
+test3   `foo  bar`
+test4   `/* foo */`
