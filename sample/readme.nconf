@@ -120,18 +120,21 @@ my_section param1 param2 `param 3`
 
         /*
             Comments inside values or key names are allowed.
-            They are just ignored without splitting the surrounding key name or value.
+            They are ignored (skipped) without splitting the surrounding key name or value.
         */
         multiline_with_comment      He/* injected */llo,
                                     wor/* comments */ld!
 
         /*
             If you need to have / followed by * as a part of your value,
-            you can break these apart by using double backticks or an empty
-            comment:
+            you can enclose the relevant part of the string in backticks:
         */
-        comment_as_string_1         Value with a /``* comment */
-        comment_as_string_2         Value with a //**/* comment */
+        comment_as_string_1         `Value with a /* comment-like syntax */`
+        comment_as_string_2         Value with a `/*` comment-like syntax */
+        /* 
+            ...or use backticks to break these two symbols apart:
+        */
+        comment_as_string_3         Value with a /``* comment-like syntax */
     }
 
     /*
