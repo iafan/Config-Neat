@@ -50,7 +50,7 @@ our $VERSION = '0.1';
 
 use strict;
 
-use Config::Neat;
+use Config::Neat::Inheritable;
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Tie::IxHash;
