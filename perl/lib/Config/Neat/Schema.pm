@@ -153,10 +153,9 @@ sub validate_node {
                 last;
             }
         }
-        $data_type = $schema_type if $cast_to_array;
     }
 
-    if ($schema_type ne $data_type) {
+    if ($schema_type ne $data_type && !$cast_to_array) {
         die "'$pathstr' is $data_type, while it is expected to be $schema_type";
     }
 
