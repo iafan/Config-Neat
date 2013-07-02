@@ -4,3 +4,7 @@ test1   foo1
 test2   foo  bar
 test3   `foo  bar`
 test4   `/* foo */`
+test5   `\/`
+test6   `\``
+test7   \`
+test8   `\/x`

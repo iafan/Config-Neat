@@ -24,6 +24,10 @@ ok($data->{test1}->as_string eq 'foo1');
 ok($data->{test2}->as_string eq 'foo bar');
 ok($data->{test3}->as_string eq 'foo  bar');
 ok($data->{test4}->as_string eq '/* foo */');
+ok($data->{test5}->as_string eq '\/');
+ok($data->{test6}->as_string eq '`');
+ok($data->{test7}->as_string eq '`');
+ok($data->{test8}->as_string eq '\/x');
 
 done_testing();
 

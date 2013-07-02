@@ -75,10 +75,12 @@ sub parse {
         #print "$mode:$first_value_pos:$pos $c\n";
 
         if ($o->{was_slash}) {
+            $o->{was_slash} = undef;
             $o->{c} = '/' . $o->{c}; # emit with the slash prepended
         }
 
         if ($o->{was_backslash}) {
+            $o->{was_backslash} = undef;
             $o->{c} = '\\' . $o->{c}; # emit with the backslash prepended
         }
 
@@ -182,7 +184,7 @@ sub parse {
 
             if ($o->{was_backslash}) {
                 $o->{was_backslash} = undef;
-                process_char($o); # print previous backslash, if any
+                process_char($o); # print [previous] backslash
             }
 
             $o->{was_backslash} = 1; # do not print current slash, but wait for the next char
@@ -193,6 +195,7 @@ sub parse {
             next if (!$o->{was_asterisk} and $o->{mode} == $BLOCK_COMMENT);
 
             if ($in_raw_mode) {
+                print "::[1].".$o->{c}."\n";
                 process_char($o);
                 next;
             }
@@ -204,7 +207,7 @@ sub parse {
 
             if ($o->{was_slash}) {
                 $o->{was_slash} = undef;
-                process_char($o); # print previous slash, if any
+                process_char($o); # print [previous] slash
             }
 
             $o->{was_slash} = 1; # do not print current slash, but wait for the next char
