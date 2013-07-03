@@ -195,7 +195,6 @@ sub parse {
             next if (!$o->{was_asterisk} and $o->{mode} == $BLOCK_COMMENT);
 
             if ($in_raw_mode) {
-                print "::[1].".$o->{c}."\n";
                 process_char($o);
                 next;
             }
