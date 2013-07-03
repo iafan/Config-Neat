@@ -69,20 +69,8 @@ sub parse {
         }
     }
 
-    sub process_char {
-        my $o = shift;
-
-        #print "$mode:$first_value_pos:$pos $c\n";
-
-        if ($o->{was_slash}) {
-            $o->{was_slash} = undef;
-            $o->{c} = '/' . $o->{c}; # emit with the slash prepended
-        }
-
-        if ($o->{was_backslash}) {
-            $o->{was_backslash} = undef;
-            $o->{c} = '\\' . $o->{c}; # emit with the backslash prepended
-        }
+    sub append_text {
+        my ($o, $text) = @_;
 
         if ($o->{mode} == $LINE_START) {
             if (($o->{first_value_pos} > 0) and ($o->{pos} >= $o->{first_value_pos})) {
@@ -100,20 +88,44 @@ sub parse {
         }
 
         if ($o->{mode} == $KEY) {
-            $o->{key} .= $o->{c};
+            $o->{key} .= $text;
         } elsif ($o->{mode} == $VALUE) {
-            $o->{value} .= $o->{c};
+            $o->{value} .= $text;
+        } else {
+            die "Unexpected mode $o->{mode}";
         }
+    }
+
+    sub process_pending_chars {
+        my $o = shift;
+
+        if ($o->{was_slash}) {
+            append_text($o, '/');
+            $o->{was_slash} = undef;
+        }
+
+        if ($o->{was_backslash}) {
+            append_text($o, '\\');
+            $o->{was_backslash} = undef;
+        }
+    }
+
+    sub process_char {
+        my $o = shift;
+
+        #print "$mode:$first_value_pos:$pos $c\n";
+
+        process_pending_chars($o);
+
+        append_text($o, $o->{c});
+        $o->{c} = undef;
     }
 
     sub end_of_value {
         my $o = shift;
         bless $o->{values}, 'Config::Neat::Array'; # this will add helper functions to the array
 
-        if ($o->{was_slash} or $o->{was_backslash}) {
-            $o->{c} = '';
-            process_char($o);
-        }
+        process_pending_chars($o);
 
         if (defined $o->{value}) {
             push @{$o->{values}}, $o->{value};
@@ -182,10 +194,7 @@ sub parse {
         } elsif ($c eq '\\') {
             next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
 
-            if ($o->{was_backslash}) {
-                $o->{was_backslash} = undef;
-                process_char($o); # print [previous] backslash
-            }
+            process_pending_chars($o);
 
             $o->{was_backslash} = 1; # do not print current slash, but wait for the next char
             next;
@@ -204,10 +213,7 @@ sub parse {
                 next;
             }
 
-            if ($o->{was_slash}) {
-                $o->{was_slash} = undef;
-                process_char($o); # print [previous] slash
-            }
+            process_pending_chars($o);
 
             $o->{was_slash} = 1; # do not print current slash, but wait for the next char
             next;
@@ -299,8 +305,6 @@ sub parse {
             process_char($o);
         }
 
-        $o->{was_slash} = undef;
-        $o->{was_backslash} = undef;
         $o->{was_asterisk} = undef;
     }
 

@@ -28,6 +28,10 @@ ok($data->{test5}->as_string eq '\/');
 ok($data->{test6}->as_string eq '`');
 ok($data->{test7}->as_string eq '`');
 ok($data->{test8}->as_string eq '\/x');
+ok($data->{test9}->as_string eq 'http:\/\/foo\.bar\.com\/baz\/');
+ok($data->{test10}->as_string eq 'foobar');
+ok($data->{test11}->as_string eq 'foo/* test */bar');
+ok($data->{test12}->as_string eq '\\\\/\\\\/\\\\/');
 
 done_testing();
 
