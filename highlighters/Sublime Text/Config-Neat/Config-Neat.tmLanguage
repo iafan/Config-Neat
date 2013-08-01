@@ -6,7 +6,9 @@
 	<string>Config::Neat Syntax</string>
 	<key>fileTypes</key>
 	<array>
+		<string>nconf.inc</string>
 		<string>nconf</string>
+		<string>neat.inc</string>
 		<string>neat</string>
 	</array>
 	<key>foldingStartMarker</key>
