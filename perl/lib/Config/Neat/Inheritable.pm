@@ -60,6 +60,7 @@ our $VERSION = '0.1';
 
 use strict;
 
+use Clone qw(clone);
 use Config::Neat;
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
@@ -109,6 +110,7 @@ sub expand_data {
 
         foreach my $from (@{$node->{'@inherit'}}) {
             my ($filename, $selector) = split('#', $from, 2);
+            $filename = '' if $filename eq '.'; # allow .#selector style to indicate the current file
             die "Neither filename nor selector are specified" unless $filename or $selector;
 
             my $merge_node;
@@ -176,10 +178,10 @@ sub merge_data {
             } elsif ($key =~ m/^\+(.*)$/) {
                 my $merge_key = $1;
                 $data1->{$merge_key} = $self->merge_data($data1->{$merge_key}, $data2->{$key}, $dir);
-                $data1->{$merge_key} = $self->expand_data($data1->{$merge_key}, $dir);
+                $data1->{$merge_key} = clone($self->expand_data($data1->{$merge_key}, $dir));
             } else {
                 $data1->{$key} = $data2->{$key};
-                $data1->{$key} = $self->expand_data($data1->{$key}, $dir);
+                $data1->{$key} = clone($self->expand_data($data1->{$key}, $dir));
             }
         }
     } elsif (ref($data1) eq 'Config::Neat::Array' and ref($data2) eq 'Config::Neat::Array') {
