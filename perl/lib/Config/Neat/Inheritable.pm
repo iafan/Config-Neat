@@ -167,6 +167,11 @@ sub select_subnode {
     return $result;
 }
 
+sub _clone {
+	my $data = shift;
+	return ref($data) ? dclone($data) : $data;
+}
+
 sub merge_data {
     my ($self, $data1, $data2, $dir) = @_;
 
@@ -178,10 +183,10 @@ sub merge_data {
             } elsif ($key =~ m/^\+(.*)$/) {
                 my $merge_key = $1;
                 $data1->{$merge_key} = $self->merge_data($data1->{$merge_key}, $data2->{$key}, $dir);
-                $data1->{$merge_key} = dclone($self->expand_data($data1->{$merge_key}, $dir));
+                $data1->{$merge_key} = _clone($self->expand_data($data1->{$merge_key}, $dir));
             } else {
                 $data1->{$key} = $data2->{$key};
-                $data1->{$key} = dclone($self->expand_data($data1->{$key}, $dir));
+                $data1->{$key} = _clone($self->expand_data($data1->{$key}, $dir));
             }
         }
     } elsif (ref($data1) eq 'Config::Neat::Array' and ref($data2) eq 'Config::Neat::Array') {
