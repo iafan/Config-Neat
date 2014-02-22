@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Igor Afanasyev, https://github.com/iafan/Config-Neat
+# Copyright (C) 2012-2014 Igor Afanasyev, https://github.com/iafan/Config-Neat
 
 =head1 NAME
 
@@ -24,7 +24,7 @@ File 02.nconf:
     +foo {
         bar         replace
     }
-    
+
     -abc
 
 Resulting data structure will be equivalent to:
@@ -56,7 +56,7 @@ Resulting data structure will be equivalent to:
 
 package Config::Neat::Inheritable;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 use strict;
 
@@ -64,7 +64,10 @@ use Config::Neat;
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Storable qw(dclone);
-use Tie::IxHash;
+
+use Data::Dumper;
+$Data::Dumper::Indent = 0;
+$Data::Dumper::Terse = 1;
 
 #
 # Initialize object
@@ -88,7 +91,9 @@ sub parse_file {
     $self->{cache} = {};
     $self->{binmode} = $binmode;
     $self->{orig_data} = $self->{cfg}->parse_file($filename, $binmode);
-    return $self->expand_data($self->{orig_data}, dirname(rel2abs($filename)));
+    my $data = _clone($self->{orig_data});
+    $self->expand_data(\$data, dirname(rel2abs($filename)));
+    return $data;
 }
 
 # Given a string representation of the config, returns a parsed tree
@@ -97,64 +102,72 @@ sub parse {
     my ($self, $nconf, $dir) = @_;
     $self->{cache} = {};
     $dir = dirname(rel2abs($0)) unless $dir;
-    return $self->expand_data($nconf, $dir);
+    $self->{orig_data} = $self->{cfg}->parse($nconf);
+    my $data = _clone($self->{orig_data});
+    $self->expand_data(\$data, $dir);
+    return $data;
 }
 
 sub expand_data {
-    my ($self, $node, $dir) = @_;
-    my $result = {};
-    tie(%$result, 'Tie::IxHash');
+    my ($self, $noderef, $dir) = @_;
 
-    if (ref($node) eq 'HASH' and exists $node->{'@inherit'}) {
-        die "The value of '\@inherit' must be a string or array" unless ref($node->{'@inherit'}) eq 'Config::Neat::Array';
+    if (ref($$noderef) eq 'HASH') {
+        # expand child nodes
+        map {
+            $self->expand_data(\$$noderef->{$_}, $dir);
+        } keys %$$noderef;
 
-        foreach my $from (@{$node->{'@inherit'}}) {
-            my ($filename, $selector) = split('#', $from, 2);
-            $filename = '' if $filename eq '.'; # allow .#selector style to indicate the current file
-            die "Neither filename nor selector are specified" unless $filename or $selector;
+        if (exists $$noderef->{'@inherit'}) {
+            die "The value of '\@inherit' must be a string or array" unless ref($$noderef->{'@inherit'}) eq 'Config::Neat::Array';
 
-            my $merge_node;
-            if (exists $self->{cache}->{$from}) {
-                $merge_node = $self->{cache}->{$from};
-            } else {
-                my $merge_cfg;
-                if ($filename) {
-                    my $fullpath = rel2abs($filename, $dir);
+            my @a = @{$$noderef->{'@inherit'}};
+            delete $$noderef->{'@inherit'};
 
-                    if (exists $self->{cache}->{$fullpath}) {
-                        $merge_cfg = $self->{cache}->{$fullpath};
-                    } else {
-                        #print "load file:[$fullpath]\n";
+            foreach my $from (@a) {
+                my ($filename, $selector) = split('#', $from, 2);
+                $filename = '' if $filename eq '.'; # allow .#selector style to indicate the current file
+                die "Neither filename nor selector are specified" unless $filename or $selector;
 
-                        $merge_cfg = $self->expand_data($self->{cfg}->parse_file($fullpath, $self->{binmode}), dirname($fullpath));
-                        $self->{cache}->{$fullpath} = $merge_cfg;
-                    }
+                my $merge_node;
+                if (exists $self->{cache}->{$from}) {
+                    $merge_node = $self->{cache}->{$from};
                 } else {
-                    $merge_cfg = $self->{orig_data};
-                }
-                $merge_node = $self->select_subnode($merge_cfg, $selector);
-                $self->{cache}->{$from} = $merge_node;
-            }
-            $result = $self->merge_data($result, $merge_node, $dir);
-        }
-        delete $node->{'@inherit'};
-    }
+                    my $merge_cfg;
+                    my $merge_dir = $dir;
+                    if ($filename) {
+                        my $fullpath = rel2abs($filename, $dir);
+                        $merge_dir = dirname($fullpath);
 
-    $result = $self->merge_data($result, $node, $dir);
-    
-    return $result;
+                        if (exists $self->{cache}->{$fullpath}) {
+                            $merge_cfg = $self->{cache}->{$fullpath};
+                        } else {
+                            $merge_cfg = $self->{cache}->{$fullpath} = $self->parse_file($fullpath, $self->{binmode});
+                        }
+                    } else {
+                        $merge_cfg = _clone($self->{orig_data});
+                    }
+                    $merge_node = $self->select_subnode($merge_cfg, $selector, $dir);
+
+                    $self->expand_data(\$merge_node, $merge_dir);
+
+                    $self->{cache}->{$from} = $merge_node;
+                }
+                $self->merge_data($noderef, $merge_node, $dir);
+            }
+        }
+    }
 }
 
 sub select_subnode {
-    my ($self, $node, $selector) = @_;
-    
+    my ($self, $node, $selector, $dir) = @_;
+
     die "Bad selector syntax (double slash) in '$selector'" if $selector =~ m/\/{2,}/;
     $selector =~ s/^\///; # remove leading slash, if any
-    
-    return $node if $selector eq '';
+
+    return _clone($node) if $selector eq '';
 
     my @a = split('/', $selector);
-    
+
     my $result = $node;
     foreach (@a) {
         next if ($_ eq '');
@@ -164,7 +177,7 @@ sub select_subnode {
             die "Can't find key '$_' in node (selector: '$selector')";
         }
     }
-    return $result;
+    return _clone($result);
 }
 
 sub _clone {
@@ -172,28 +185,41 @@ sub _clone {
 	return ref($data) ? dclone($data) : $data;
 }
 
+# merge into data1ref tree structure from data2
+# data1ref is the one that may contain `-key` and `+key` entries
 sub merge_data {
-    my ($self, $data1, $data2, $dir) = @_;
+    my ($self, $data1ref, $data2, $dir) = @_;
 
-    if (ref($data1) eq 'HASH' and ref($data2) eq 'HASH') {
-        foreach my $key (keys %$data2) {
+    if (ref($$data1ref) eq 'HASH') {
+        my $data2_is_hash = ref($data2) eq 'HASH';
+        foreach my $key (keys %$$data1ref) {
             if ($key =~ m/^-(.*)$/) {
-                die "Key '$key' contains bogus data; expected an empty or true value" unless $data2->{$key}->as_boolean;
-                delete $data1->{$1};
+                my $merge_key = $1;
+                die "Key '$key' contains bogus data; expected an empty or true value" unless $$data1ref->{$key}->as_boolean;
+                delete $$data1ref->{$key};
+                delete $data2->{$merge_key} if $data2_is_hash;
             } elsif ($key =~ m/^\+(.*)$/) {
                 my $merge_key = $1;
-                $data1->{$merge_key} = $self->merge_data($data1->{$merge_key}, $data2->{$key}, $dir);
-                $data1->{$merge_key} = _clone($self->expand_data($data1->{$merge_key}, $dir));
+                $$data1ref->{$merge_key} = $$data1ref->{$key};
+                delete $$data1ref->{$key};
+                $self->merge_data(\$$data1ref->{$merge_key}, $data2->{$merge_key}, $dir);
+                delete $data2->{$merge_key} if $data2_is_hash;
             } else {
-                $data1->{$key} = $data2->{$key};
-                $data1->{$key} = _clone($self->expand_data($data1->{$key}, $dir));
+                $self->merge_data(\$$data1ref->{$key}, undef, $dir);
             }
         }
-    } elsif (ref($data1) eq 'Config::Neat::Array' and ref($data2) eq 'Config::Neat::Array') {
-        push(@$data1, @$data2);
+        if ($data2_is_hash) {
+            foreach my $key (keys %$data2) {
+                if (exists $data2->{$key} && !exists $$data1ref->{$key}) {
+                    $$data1ref->{$key} = $data2->{$key};
+                }
+            }
+        }
+    } elsif (ref($$data1ref) eq 'Config::Neat::Array') {
+        if (ref($data2) eq 'Config::Neat::Array') {
+            unshift(@$$data1ref, @$data2);
+        }
     } else {
-        $data1 = $data2;
+        die "Unknown data type to merge";
     }
-
-    return $data1;
 }
