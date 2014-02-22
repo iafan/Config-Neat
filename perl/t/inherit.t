@@ -66,7 +66,7 @@ foreach my $test_filename (@nconf_files) {
             ok($text1, '$text1 is defined');
 
             my $reference_text = read_file($reference_filename, {binmode => ':utf8'});
-            is($text1, $reference_text, 'Text should be equal to reference file contents');
+            is($text1, $reference_text, 'Text should be equal to reference file contents: '.$reference_filename);
         }
     }
 }
