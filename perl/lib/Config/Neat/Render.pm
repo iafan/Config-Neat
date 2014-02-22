@@ -27,7 +27,7 @@ sub new {
 
         sort            => undef, # can be a true value if you want to sort keys alphabetically
                                   # or a reference to an array with an ordered list of key names
-        undefined_value => 'NO'   # default value to emit for undefined values 
+        undefined_value => 'NO'   # default value to emit for undefined values
     };
 
     $options = {} unless $options;
@@ -170,7 +170,7 @@ sub render {
 
     sub render_wrapped_array {
         my ($array, $options, $indent) = @_;
-    
+
         my $wrap_width = $options->{wrap_width};
 
         my @a;
@@ -260,7 +260,7 @@ sub render {
         }
 
         my $was = undef;
-        my $PARAM = 1; 
+        my $PARAM = 1;
         my $BLOCK = 2;
 
         my @keys = keys %$node;

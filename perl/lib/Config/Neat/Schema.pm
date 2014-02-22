@@ -29,7 +29,7 @@ File schema.nconf:
         }
     }
     data            DATA
-    
+
 if file 01.nconf is validated against schema.nconf, it will:
 1) convert arrays to strings for the known nodes with 'STRING' type
 2) die or warn (depending on the settings) when an unknown node is found

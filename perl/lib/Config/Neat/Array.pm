@@ -51,7 +51,7 @@ sub is_boolean {
 #   }
 sub as_hash {
     my ($self, $propname) = @_;
-    
+
     die "Second parameter (propname) not provided" unless defined $propname;
 
     my $result = {};

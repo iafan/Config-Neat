@@ -69,7 +69,7 @@ my_section param1 param2 `param 3`
                                         bar
                                         baz
                                     etc
-                                    ` 
+                                    `
 
         /* You can also put backticks on the same line, if you prefer. */
 
@@ -82,9 +82,9 @@ my_section param1 param2 `param 3`
             In order to interpret a value as a boolean one, use Config::Neat as_boolean() method
         */
         boolean_true                YES             # or Y, ON, TRUE or 1
-        boolean_false               NO              # actually, you can use any string except the ones above 
+        boolean_false               NO              # actually, you can use any string except the ones above
         empty_boolean_flag                          # when no parameter provided, it defaults to 'YES' (i.e. works as a flag)
-        
+
         /*
             To explictly set a value to an empty string, use double backticks:
         */
@@ -131,7 +131,7 @@ my_section param1 param2 `param 3`
         */
         comment_as_string_1         `Value with a /* comment-like syntax */`
         comment_as_string_2         Value with a `/*` comment-like syntax */
-        /* 
+        /*
             ...or use backticks to break these two symbols apart:
         */
         comment_as_string_3         Value with a /``* comment-like syntax */

@@ -36,7 +36,7 @@ sub parse {
     my $VALUE         = 3;
     my $LINE_COMMENT  = 4;
     my $BLOCK_COMMENT = 5;
-    
+
     my $o = {
         context         => [$new],
         c               => undef,
@@ -153,10 +153,10 @@ sub parse {
                 }
                 $o->{key} = $auto_key++;
             }
-             
+
             my $new = {};
             tie(%$new, 'Tie::IxHash');
-            
+
             $o->{context}->[$#{$o->{context}}]->{$o->{key}} = $new;
             push @{$o->{context}}, $new;
 

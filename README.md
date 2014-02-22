@@ -15,7 +15,7 @@ In its simplest form, the configuration file can look like this:
     # Server configuration
     server    Some string
     port      8080
-    use_ssl   YES    
+    use_ssl   YES
 
 You are not forced to enclose strings in quotes, or specify delimiters
 at the end of each line; you will never need to escape single or double quotes.
@@ -76,7 +76,7 @@ It depends on [Tie::IxHash](http://search.cpan.org/~chorny/Tie-IxHash/) module a
     # now $data contains a parsed hash tree which you can examine
 
     # consider the example config above
-    
+
     my $list = $data->{'server'}->{'supported_mime_types'};
     #
     # $list now is an array reference:

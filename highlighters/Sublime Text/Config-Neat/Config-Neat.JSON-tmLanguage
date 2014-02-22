@@ -1,15 +1,15 @@
 {
-    "comment": "Config::Neat Syntax", 
+    "comment": "Config::Neat Syntax",
     "fileTypes": [
         "nconf.inc",
         "nconf",
         "neat.inc",
         "neat"
-    ], 
-    "foldingStartMarker": "(/\\*|(\\{|\\[|\\()\\s*$)", 
-    "foldingStopMarker": "(\\*/|^\\s*(\\}|\\]|\\)))", 
-    "keyEquivalent": "^~N", 
-    "name": "Config-Neat", 
+    ],
+    "foldingStartMarker": "(/\\*|(\\{|\\[|\\()\\s*$)",
+    "foldingStopMarker": "(\\*/|^\\s*(\\}|\\]|\\)))",
+    "keyEquivalent": "^~N",
+    "name": "Config-Neat",
     "patterns": [
         {
             "comment": "Known constants that are considered TRUE",
@@ -19,7 +19,7 @@
                     "name": "constant.language.boolean.true.nconf"
                 }
             }
-        }, 
+        },
         {
             "comment": "Known constants that are considered FALSE",
             "match": "\\s{2,}(NO|N|OFF|FALSE|0)\\b",
@@ -28,47 +28,47 @@
                     "name": "constant.language.boolean.false.nconf"
                 }
             }
-        }, 
+        },
         {
             "comment": "Escaped backtick",
-            "match": "\\\\`", 
+            "match": "\\\\`",
             "name": "constant.character.escape.nconf"
-        }, 
+        },
         {
             "comment": "Text inside backticks",
-            "begin": "`", 
+            "begin": "`",
             "beginCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.begin.nconf"
                 }
-            }, 
-            "end": "`", 
+            },
+            "end": "`",
             "endCaptures": {
                 "0": {
                     "name": "punctuation.definition.string.end.nconf"
                 }
-            }, 
-            "name": "string.quoted", 
+            },
+            "name": "string.quoted",
             "patterns": [
                 {
                     "comment": "Escaped backtick",
-                    "match": "\\\\`", 
+                    "match": "\\\\`",
                     "name": "constant.character.escape.nconf"
                 }
             ]
-        }, 
+        },
         {
             "comment": "Single-line comments: #... (there should be a whitespace or beginning of the line before #)",
-            "begin": "(^|\\s)#", 
-            "end": "$", 
+            "begin": "(^|\\s)#",
+            "end": "$",
             "name": "comment.line.nconf"
-        }, 
+        },
         {
             "comment": "Block comments: /* ... */",
-            "begin": "/\\*", 
-            "end": "\\*/", 
+            "begin": "/\\*",
+            "end": "\\*/",
             "name": "comment.block.nconf"
-        }, 
+        },
         {
             "comment": "Different coloring for '@whatever' key names",
             "match": "(?:^|{)(?:\\s*)(@)([^\\s\\/#{}`]+)(#[^\\s\\/#{}]+)?",
@@ -77,7 +77,7 @@
                     "name": "variable.parameter.function.nconf"
                 }
             }
-        }, 
+        },
         {
             "comment": "Different coloring for '-whatever' key names",
             "match": "(?:^|{)(?:\\s*)(-)([^\\s\\/#{}`]+)(#[^\\s\\/#{}]+)?",
@@ -86,7 +86,7 @@
                     "name": "keyword.operator.nconf"
                 }
             }
-        }, 
+        },
         {
             "comment": "Different coloring for '+whatever' key names",
             "match": "(?:^|{)(?:\\s*)(\\+)([^\\s\\/#{}`]+)(#[^\\s\\/#{}]+)?",
@@ -95,7 +95,7 @@
                     "name": "entity.name.function.nconf"
                 }
             }
-        }, 
+        },
         {
             "comment": "Generic coloring for key names",
             "match": "(?:^|{)(?:\\s*)([^\\s\\/#{}`]+)(#[^\\s\\/#{}]+)?",
@@ -104,18 +104,18 @@
                     "name": "support.constant.nconf"
                 }
             }
-        }, 
+        },
         {
             "comment": "Curly braces: { ... }",
-            "match": "\\{|\\}", 
+            "match": "\\{|\\}",
             "name": "meta.brace.curly.nconf"
-        }, 
+        },
         {
             "comment": "%whatever% style macro highlighting",
-            "match": "%.*?%", 
+            "match": "%.*?%",
             "name": "variable.parameter.nconf"
         }
-    ], 
-    "scopeName": "source.nconf", 
+    ],
+    "scopeName": "source.nconf",
     "uuid": "1faa8f23-8f83-45cb-b566-a340924575c4"
 }

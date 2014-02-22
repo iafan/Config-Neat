@@ -49,7 +49,7 @@ foreach my $test_filename (@nconf_files) {
             # init mode: create reference file
             my $data1 = $c->parse_file($test_filename);
             ok($data1, '$data1 is defined');
-            
+
             my $text1 = $r->render($data1);
             ok($text1, '$text1 is defined');
 
@@ -61,7 +61,7 @@ foreach my $test_filename (@nconf_files) {
 
             my $data1 = $c->parse_file($test_filename);
             ok($data1, '$data1 is defined');
-            
+
             my $text1 = $r->render($data1);
             ok($text1, '$text1 is defined');
 
