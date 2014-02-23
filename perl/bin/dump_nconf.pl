@@ -1,18 +1,86 @@
 #!/usr/bin/perl
 
-use strict;
-use utf8;
+=head1 NAME
 
-BEGIN {
-  use File::Spec::Functions qw(rel2abs);
-  use File::Basename;
-  unshift(@INC, dirname(rel2abs($0)).'/../lib');
+dump_nconf.pl - Dump resulting configuration file data structure
+
+=head1 SYNOPSIS
+
+dump_nconf.pl /path/to/file.nconf [--mode=<mode>]
+
+Supported modes:
+
+=over 10
+
+=item neat
+
+Use Config::Neat::Render to print out the data structure (default mode)
+
+=item dumper
+
+Print out the data structure using Data::Dumper
+
+=item json
+
+Print out the data structure as JSON
+
+=back
+
+=head1 DESCRIPTION
+
+This script will read and parse the provided configuration file,
+apply its inheritance rules, and dump the resulting data structure
+using Data::Dumper.
+
+This is useful to understand the data structure behind you configuration
+files in general and debug inheritance rules in particular.
+
+=head1 AUTHOR
+
+Igor Afanasyev <igor.afanasyev@gmail.com>
+
+=cut
+
+use strict;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Config::Neat::Inheritable;
+use Config::Neat::Render;
+use Data::Dumper;
+use Getopt::Long;
+use JSON -convert_blessed_universally;
+use Pod::Usage;
+
+pod2usage(-verbose => 0) unless $ARGV[0];
+
+my $mode;
+
+GetOptions(
+    'mode=s' => \$mode,
+) or error("Failed to parse some command-line parameters.");
+
+$mode = 'neat' unless $mode;
+
+error("Unsupported mode '$mode'") unless $mode =~ m/^(neat|dumper|json)$/;
+
+error("Multiple configuration files not allowed") unless $#ARGV == 0;
+
+my $cfg = Config::Neat::Inheritable->new();
+my $data = $cfg->parse_file($ARGV[0]);
+
+my $r = Config::Neat::Render->new();
+if ($mode eq 'neat') {
+    print $r->render($data);
+} elsif ($mode eq 'dumper') {
+    print Dumper($data);
+} elsif ($mode eq 'json') {
+    print JSON->new->convert_blessed->indent->encode($data);
 }
 
-use Config::Neat;
-use Data::Dumper;
-
-my $cfg = Config::Neat->new();
-my $data = $cfg->parse(join('', <>)); # Read data from STDIN
-
-print Dumper($data);
+sub error {
+    my ($message, $exitstatus) = @_;
+    $exitstatus = 1 unless defined $exitstatus;
+    pod2usage(-message => $message."\n", -verbose => 0, -exitstatus => $exitstatus);
+}
