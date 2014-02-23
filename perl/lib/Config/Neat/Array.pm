@@ -1,8 +1,22 @@
+# Copyright (C) 2012-2014 Igor Afanasyev, https://github.com/iafan/Config-Neat
+
 package Config::Neat::Array;
+
+our $VERSION = '0.2';
 
 use strict;
 
-our $VERSION = '0.1';
+sub new {
+    my ($class, $self) = @_;
+    $self = [] unless defined $self && ref($self) eq 'ARRAY';
+    bless $self, $class;
+    return $self;
+}
+
+sub push {
+    my $self = shift;
+    push @$self, @_;
+}
 
 # Given ['foo', 'bar', 'baz'] as the contents of the array, returns 'foo bar baz' string.
 # If string starts from a newline and the next line is indented, remove that amount of spaces

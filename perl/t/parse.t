@@ -32,6 +32,9 @@ ok($data->{test9}->as_string eq 'http:\/\/foo\.bar\.com\/baz\/');
 ok($data->{test10}->as_string eq 'foobar');
 ok($data->{test11}->as_string eq 'foo/* test */bar');
 ok($data->{test12}->as_string eq '\\\\/\\\\/\\\\/');
+ok(ref($data->{test_multi}) eq 'Config::Neat::Array');
+ok($data->{test_multi}[0]->as_string eq 'foo bar');
+ok($data->{test_multi}[1]->as_string eq 'baz etc');
 
 done_testing();
 

@@ -12,3 +12,6 @@ test9       http:\/\/foo\.bar\.com\/baz\/
 test10      foo/* test */bar
 test11      `foo/* test */bar`
 test12      \\/\\/\\/
+
+test_multi  foo bar
+test_multi  baz etc

@@ -2,7 +2,7 @@
 
 package Config::Neat;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 use strict;
 
@@ -38,20 +38,21 @@ sub parse {
     my $BLOCK_COMMENT = 5;
 
     my $o = {
-        context         => [$new],
-        c               => undef,
+        context            => [$new],
+        c                  => undef,
 
-        pos             => 0,
+        pos                => 0,
 
-        key             => '',
-        values          => [],
-        value           => undef,
-        mode            => $LINE_START,
-        previous_mode   => $LINE_START,
-        was_backslash   => undef,
-        was_slash       => undef,
-        was_asterisk    => undef,
-        first_value_pos => 0,
+        key                => '',
+        values             => Config::Neat::Array->new(),
+        value              => undef,
+        mode               => $LINE_START,
+        previous_mode      => $LINE_START,
+        was_backslash      => undef,
+        was_slash          => undef,
+        was_asterisk       => undef,
+        first_value_pos    => 0,
+        converted_to_array => undef,
     };
 
     my $auto_key        = 0;
@@ -63,8 +64,18 @@ sub parse {
 
         if ($o->{key} ne '') {
             push @{$o->{values}}, 'YES' if scalar(@{$o->{values}}) == 0;
-            $o->{context}->[$#{$o->{context}}]->{$o->{key}} = $o->{values};
-            $o->{values} = [];
+            my $new = $o->{context}->[$#{$o->{context}}];
+            if (exists $new->{$o->{key}}) {
+                if (!$o->{converted_to_array}) {
+                    $new->{$o->{key}} = Config::Neat::Array->new([$new->{$o->{key}}]);
+                    $o->{converted_to_array} = 1;
+                }
+                $new->{$o->{key}}->push($o->{values});
+            } else {
+                $new->{$o->{key}} = $o->{values};
+            }
+            $o->{values} = Config::Neat::Array->new();
+            $o->{converted_to_array} = undef;
             $o->{key} = '';
         }
     }
@@ -113,8 +124,6 @@ sub parse {
     sub process_char {
         my $o = shift;
 
-        #print "$mode:$first_value_pos:$pos $c\n";
-
         process_pending_chars($o);
 
         append_text($o, $o->{c});
@@ -123,7 +132,6 @@ sub parse {
 
     sub end_of_value {
         my $o = shift;
-        bless $o->{values}, 'Config::Neat::Array'; # this will add helper functions to the array
 
         process_pending_chars($o);
 
@@ -157,7 +165,16 @@ sub parse {
             my $new = {};
             tie(%$new, 'Tie::IxHash');
 
-            $o->{context}->[$#{$o->{context}}]->{$o->{key}} = $new;
+            my $current_ctx = $o->{context}->[$#{$o->{context}}];
+            if (exists $current_ctx->{$o->{key}}) {
+                if (ref($current_ctx->{$o->{key}}) ne 'Config::Neat::Array') {
+                    $current_ctx->{$o->{key}} = Config::Neat::Array->new([$current_ctx->{$o->{key}}]);
+                }
+                $current_ctx->{$o->{key}}->push($new);
+            } else {
+                $current_ctx->{$o->{key}} = $new;
+            }
+
             push @{$o->{context}}, $new;
 
             # any values preceding the block will be added into it with an empty key value
@@ -165,7 +182,7 @@ sub parse {
                 $new->{''} = $o->{values};
             }
 
-            $o->{values} = [];
+            $o->{values} = Config::Neat::Array->new();
             $o->{key} = '';
             $o->{value} = undef;
             $auto_key = 0;
@@ -189,7 +206,7 @@ sub parse {
             pop @{$o->{context}};
             $o->{mode} = $WHITESPACE;
             $o->{key} = '';
-            $o->{values} = [];
+            $o->{values} = Config::Neat::Array->new();
 
         } elsif ($c eq '\\') {
             next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);

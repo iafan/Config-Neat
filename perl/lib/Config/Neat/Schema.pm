@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Igor Afanasyev, https://github.com/iafan/Config-Neat
+# Copyright (C) 2013-2014 Igor Afanasyev, https://github.com/iafan/Config-Neat
 
 =head1 NAME
 
@@ -46,7 +46,7 @@ any arbitrary data structure and are not validated.
 
 package Config::Neat::Schema;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 use strict;
 

@@ -1,8 +1,8 @@
-# Copyright (C) 2012 Igor Afanasyev, https://github.com/iafan/Config-Neat
+# Copyright (C) 2012-2014 Igor Afanasyev, https://github.com/iafan/Config-Neat
 
 package Config::Neat::Render;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 use strict;
 
@@ -65,6 +65,9 @@ sub new {
 sub render {
     my ($self, $data, $options) = @_;
 
+    my $PARAM = 1;
+    my $BLOCK = 2;
+
     $options = {} unless $options;
     %$options = (%{$self->{_options}}, %$options);
 
@@ -93,6 +96,11 @@ sub render {
         return ref($node) eq 'ARRAY';
     }
 
+    sub is_neat_array {
+        my $node = shift;
+        return ref($node) eq 'Config::Neat::Array';
+    }
+
     sub is_scalar {
         my $node = shift;
         return (ref(\$node) eq 'SCALAR') or (ref($node) eq 'SCALAR');
@@ -113,31 +121,39 @@ sub render {
             } else {
                 $contains_scalar |= is_scalar($value);
             }
-            die "Mixing hashes with simple arrays/scalars within one node is not supported" if $contains_hash and $contains_scalar;
+            die "Mixing hashes with simple arrays/scalars within one node is not supported" if $contains_hash && $contains_scalar;
         }
         return $contains_scalar;
     }
 
     sub max_key_length {
         my ($node, $options, $indent, $recursive) = @_;
-        die "Not a hash" unless is_hash($node);
 
         my $len = 0;
-        foreach my $key (keys %$node) {
-            my $subnode = $node->{$key};
-
-            if (is_array($subnode) and !is_simple_array($subnode)) {
-                $subnode = convert_array_to_hash($subnode);
-            }
-
-            if (!is_hash($subnode)) {
+        if (is_hash($node)) {
+            foreach my $key (keys %$node) {
                 my $key_len = $indent + length($key);
                 $len = $key_len if $key_len > $len;
 
-            } elsif ($recursive) {
-                my $child_len = max_key_length($subnode, $options, $indent + $options->{indentation}, $recursive);
-                $len = $child_len if $child_len > $len;
+                my $subnode = $node->{$key};
+
+                if (is_array($subnode) && !is_simple_array($subnode)) {
+                    $subnode = convert_array_to_hash($subnode);
+                }
+
+                if ($recursive && (is_hash($subnode) || is_neat_array($subnode) || is_array($subnode))) {
+                    my $sub_indent = is_hash($subnode) ? $options->{indentation} : 0;
+                    my $child_len = max_key_length($subnode, $options, $indent + $sub_indent, $recursive);
+                    my $key_len = $child_len;
+                    $len = $key_len if $key_len > $len;
+                }
             }
+        } elsif ((is_neat_array($node) || is_array($node)) && !is_simple_array($node)) {
+            map {
+                my $child_len = max_key_length($_, $options, $indent + $options->{indentation}, $recursive);
+                my $key_len = $child_len;
+                $len = $key_len if $key_len > $len;
+            } @$node;
         }
         return $len;
     }
@@ -231,24 +247,77 @@ sub render {
         return ($spaces <= 0) ? $s : $s . ' ' x $spaces;
     }
 
+    sub render_key_val {
+        my ($options, $key_length, $indent, $wasref, $array_mode, $key, $val) = @_;
+
+        my $text = '';
+        my $space_indent = (' ' x $indent);
+
+        die "Keys should not conain whitespace" if ($key =~ m/\s/);
+
+        if (is_scalar($val)) {
+            $text .= "\n" if ($$wasref == $BLOCK) and $options->{separate_blocks};
+
+            $text .= $space_indent .
+                     pad($key, $key_length - $indent) .
+                     (' ' x $options->{key_spacing}) .
+                     render_scalar($val, $options, $key_length + $options->{key_spacing}) .
+                     "\n";
+
+            $$wasref = $PARAM;
+
+        } elsif (is_simple_array($val)) {
+            # escape individual array items
+            my @a = map { render_scalar($_, $options, undef, 1) } @$val;
+
+            $text .= "\n" if ($$wasref == $BLOCK) and $options->{separate_blocks};
+
+            $text .= $space_indent .
+                     pad($key, $key_length - $indent) .
+                     (' ' x $options->{key_spacing}) .
+                     render_wrapped_array(\@a, $options, $key_length + $options->{key_spacing}) .
+                     "\n";
+
+            $$wasref = $PARAM;
+
+        } elsif (is_neat_array($val)) {
+            map {
+                $text .= render_key_val($options, $key_length, $indent, $wasref, $array_mode, $key, $_);
+            } @$val;
+
+        } else {
+            $text .= "\n" if $$wasref and $options->{separate_blocks};
+
+            $text .= $space_indent;
+
+            if (!$array_mode) {
+                $text .= $options->{brace_under} ? "$key\n$space_indent" : "$key ";
+            }
+
+            $text .= "{\n" .
+                     render_node_recursively($val, $options, $indent + $options->{indentation}) .
+                     $space_indent .
+                     "}\n";
+
+            $$wasref = $BLOCK;
+        }
+
+        return $text;
+    }
+
     sub render_node_recursively {
         my ($node, $options, $indent) = @_;
         my $text = '';
-        my $simple_array;
         my $key_length = 0;
         my $array_mode;
 
-        my $key_spacing     =   $options->{key_spacing};
-        my $separate_blocks = !!$options->{separate_blocks};
-        my $sort            =   $options->{sort};
-
-        my $space_indent = (' ' x $indent);
-
-        if (is_array($node)) {
-            $simple_array = is_simple_array($node);
-            die "Can't render simple arrays as a main block content" if $simple_array;
-            $array_mode = 1;
-            $node = convert_array_to_hash($node);
+        if (is_array($node) || is_neat_array($node)) {
+            if (is_simple_array($node)) {
+                die "Can't render simple arrays as a main block content";
+            } else {
+                $array_mode = 1;
+                $node = convert_array_to_hash($node);
+            }
         }
 
         if (is_hash($node)) {
@@ -260,9 +329,8 @@ sub render {
         }
 
         my $was = undef;
-        my $PARAM = 1;
-        my $BLOCK = 2;
 
+        my $sort = $options->{sort};
         my @keys = keys %$node;
         if (!$array_mode and scalar(@keys) > 1) {
             if (is_hash($sort)) {
@@ -273,50 +341,7 @@ sub render {
         }
 
         foreach my $key (@keys) {
-            my $val = $node->{$key};
-            die "Keys should not conain whitespace" if ($key =~ m/\s/);
-
-            if (is_scalar($val)) {
-                $text .= "\n" if ($was == $BLOCK) and $separate_blocks;
-
-                $text .= $space_indent .
-                         pad($key, $key_length - $indent) .
-                         (' ' x $key_spacing) .
-                         render_scalar($val, $options, $key_length + $key_spacing) .
-                         "\n";
-
-                $was = $PARAM;
-
-            } elsif (is_simple_array($val)) {
-                # escape individual array items
-                my @a = map { render_scalar($_, $options, undef, 1) } @$val;
-
-                $text .= "\n" if ($was == $BLOCK) and $separate_blocks;
-
-                $text .= $space_indent .
-                         pad($key, $key_length - $indent) .
-                         (' ' x $key_spacing) .
-                         render_wrapped_array(\@a, $options, $key_length + $key_spacing) .
-                         "\n";
-
-                $was = $PARAM;
-
-            } else {
-                $text .= "\n" if $was and $separate_blocks;
-
-                $text .= $space_indent;
-
-                if (!$array_mode) {
-                    $text .= $options->{brace_under} ? "$key\n$space_indent" : "$key ";
-                }
-
-                $text .= "{\n" .
-                         render_node_recursively($val, $options, $indent + $options->{indentation}) .
-                         $space_indent .
-                         "}\n";
-
-                $was = $BLOCK;
-            }
+            $text .= render_key_val($options, $key_length, $indent, \$was, $array_mode, $key, $node->{$key});
         }
         return $text;
     }
