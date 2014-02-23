@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-dump_nconf.pl - Dump resulting configuration file data structure
+dump-nconf - Dump resulting configuration file data structure
 
 =head1 SYNOPSIS
 
-dump_nconf.pl /path/to/file.nconf [--mode=<mode>]
+dump-nconf /path/to/file.nconf [--mode=<mode>]
 
 Supported modes:
 
@@ -30,7 +30,7 @@ Print out the data structure as JSON
 
 This script will read and parse the provided configuration file,
 apply its inheritance rules, and dump the resulting data structure
-using Data::Dumper.
+using Config::Neat::Render, Data::Dumper or JSON methods.
 
 This is useful to understand the data structure behind you configuration
 files in general and debug inheritance rules in particular.

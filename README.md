@@ -202,7 +202,7 @@ Alternatively, setting `sort` to a true value will just sort keys alphabetically
 Tools
 -----
 
-### [dump_nconf.pl](perl/bin/dump_nconf.pl)
+### [dump-nconf](perl/bin/dump-nconf)
 
 This script will read the configuration file
 and emit the parsed data structure in either Config::Neat::Render, Data::Dumper

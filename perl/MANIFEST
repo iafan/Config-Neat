@@ -2,7 +2,7 @@ MANIFEST
 README
 Changes
 Build.PL
-bin/dump_nconf.pl
+bin/dump-nconf
 lib/Config/Neat.pm
 lib/Config/Neat/Array.pm
 lib/Config/Neat/Inheritable.pm
