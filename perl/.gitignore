@@ -1,0 +1,9 @@
+Build
+Build.bat
+_build
+blib
+META.*
+MYMETA.*
+Makefile.PL
+*.tar.gz
+Config-Neat-*

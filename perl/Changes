@@ -1,0 +1,6 @@
+Revision history for Config-Neat
+
+0.2     23 February 2014
+        Support multiple key declarations at the same level
+        (these will be converted to an array).
+        Initial CPAN release.

@@ -1,5 +1,11 @@
 # Copyright (C) 2012 Igor Afanasyev, https://github.com/iafan/Config-Neat
 
+=head1 NAME
+
+Config::Neat - Parse/render human-readable configuration files with inheritance and schema validation
+
+=cut
+
 package Config::Neat;
 
 our $VERSION = '0.2';
