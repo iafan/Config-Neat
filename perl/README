@@ -6,8 +6,8 @@ human-readable configuration files with inheritance and schema validation.
 INSTALLATION
 
     perl Build.PL
-    Build test
-    Build install
+    ./Build test
+    ./Build install
 
 SEE ALSO
 
