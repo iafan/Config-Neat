@@ -65,10 +65,6 @@ use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Storable qw(dclone);
 
-use Data::Dumper;
-$Data::Dumper::Indent = 0;
-$Data::Dumper::Terse = 1;
-
 #
 # Initialize object
 #
