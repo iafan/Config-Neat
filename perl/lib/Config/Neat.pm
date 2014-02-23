@@ -1,8 +1,71 @@
-# Copyright (C) 2012 Igor Afanasyev, https://github.com/iafan/Config-Neat
-
 =head1 NAME
 
 Config::Neat - Parse/render human-readable configuration files with inheritance and schema validation
+
+=head1 SYNOPSIS
+
+    use Config::Neat;
+
+    my $cfg = Config::Neat->new();
+    my $data = $cfg->parse_file('server.nconf');
+
+=head1 DESCRIPTION
+
+This module provides parsing capabilites for the Config::Neat configuration file
+format (see the example below). This is a highly readable and clean format inspired
+by [nginx configuration files](http://wiki.nginx.org/FullExample).
+See L<https://github.com/iafan/Config-Neat/blob/master/sample/readme.nconf>
+for the detailed file syntax specification.
+
+Sample configuration file (let's call it 'server.nconf'):
+
+    # Server configuration
+
+    host                    localhost
+    port                    8080
+    use_ssl                 YES
+    supported_mime_types    text/html text/css text/xml text/plain
+                            image/gif image/jpeg image/png image/x-icon
+                            application/x-javascript
+
+    handler test1 {
+        url                 /test1
+        class               MyApp::Test
+    }
+
+    handler test2 {
+        url                 /test2
+        class               MyApp::AnotherTest
+    }
+
+Sample usage:
+
+    use Config::Neat;
+
+    my $cfg = Config::Neat->new();
+    my $data = $cfg->parse_file('server.nconf');
+
+    # now $data contains a parsed hash tree which you can examine
+
+    # consider the sample configuration file above
+
+    my $list = $data->{'server'}->{'supported_mime_types'};
+    #
+    # $list now is an array reference:
+    #     ['text/html', 'text/css', ..., 'application/x-javascript']
+
+    my $handlers = $data->{'handler'};
+    map {
+        print $_->{url}->as_string, ' maps to ', $_->{class}->as_string
+    } @$handlers;
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012-2014 Igor Afanasyev <igor.afanasyev@gmail.com>
+
+=head1 SEE ALSO
+
+L<https://github.com/iafan/Config-Neat>
 
 =cut
 

@@ -1,4 +1,178 @@
-# Copyright (C) 2012-2014 Igor Afanasyev, https://github.com/iafan/Config-Neat
+=head1 NAME
+
+Config::Neat::Render - Render configs in Config::Neat format
+
+=head1 SYNOPSIS
+
+    use Config::Neat::Render;
+
+    my $r = Config::Neat::Render->new();
+
+    my $data = {
+        'foo' => 'Hello, World!',
+        'bar' => [1, 2, 3],
+        'baz' => {
+            'etc' => ['foo bar', 'baz', '', 1]
+        }
+    };
+
+    print $r->render($data);
+
+The output will be:
+
+    bar         1 2 3
+
+    baz
+    {
+        etc    `foo bar` baz `` 1
+    }
+
+    foo         Hello, World!
+
+=head1 DESCRIPTION
+
+This module allows you to render Config::Neat-compatible structures from your data
+(but read below for limitations). See
+L<https://github.com/iafan/Config-Neat/blob/master/sample/readme.nconf>
+for the detailed file syntax specification. For parsing, use L<Config::Neat>.
+
+=head2 METHODS
+
+=over 4
+
+=item B<< Config::Neat::Render->new([$options]) >>
+
+Constructs a new renderer object. $options is a reference to a hash containing
+rendering options' overrides (see the RENDERING OPTIONS section below).
+
+=item B<< Config::Neat::Render->render($data[, $options]) >>
+
+Renders $data into a string and returns it. $options is a reference to a hash
+containing rendering options' overrides (see the RENDERING OPTIONS section below).
+
+=back
+
+=head2 RENDERING OPTIONS
+
+=over 4
+
+=item B<< indentation >>
+
+A number of spaces to indent each nested block contents with.
+
+Default value: C<4>
+
+=item B<< key_spacing >>
+
+A number of spaces between a key and and a value.
+
+Default value: C<4>
+
+=item B<< wrap_width >>
+
+A suggested maximum width of each line in a multiline string or array.
+
+Default value: C<60>
+
+=item B<< brace_under >>
+
+If true, put the opening brace under the key name, not on the same line
+
+Default value: C<1> (true)
+
+=item B<< separate_blocks >>
+
+If true, surrond blocks with empty lines for better readability.
+
+Default value: C<1> (true)
+
+=item B<< align_all >>
+
+If true, align all values in the configuration file
+(otherwise the values are aligned only within current block).
+
+Default value: C<1> (true)
+
+=item B<< sort >>
+
+Note that hashes in Perl do not guarantee the correct order, so blocks may have
+individual parameters shuffled randomly. Set this option to a true value
+if you want to sort keys alphabetically, or to a reference to an array holding
+an ordered list of key names
+
+Default value: C<undef> (false)
+
+Example:
+
+    my $data = {
+        'bar' => [1, 2, 3],
+        'baz' => {
+            'etc' => ['foo bar', 'baz', '', 1]
+        }
+        'foo' => 'Hello, World!',
+    };
+
+    my @order = qw(foo bar baz);
+
+    print $r->render($data, {sort => \@order});
+
+The output will be:
+
+    foo        Hello, World!
+    bar        1 2 3
+
+    baz
+    {
+        etc    `foo bar` baz `` 1
+    }
+
+=item B<< undefined_value >>
+
+A string representation of the value to emit for undefined values
+
+Default value: C<'NO'>
+
+=back
+
+=head1 LIMITATIONS
+
+Do not use L<Config::Neat::Render> in conjunction with L<Config::Neat> for
+arbitrary data serialization/desrialization. JSON and YAML will work better
+for this kind of task.
+
+Why? Because Config::Neat was primarily designed to allow easier configuration
+file authoring and reading, and uses relaxed syntax where strings are treated like
+space-separated arrays (and vice versa), and where there's no strict definition
+for boolean types, no null values, etc.
+
+It's the developer's responsibility to treat any given parameter as a boolean,
+or string, or an array. This means that once you serialize your string into
+Config::Neat format and parse it back, it will be converted to an array,
+and you will need to use `->as_string` method to get the value as string.
+
+In other words, when doing this:
+
+    my $c = Config::Neat->new();
+    my $r = Config::Neat::Render->new();
+    my $parsed_data = $c->parse($r->render($arbitrary_data));
+
+$parsed_data will almost always be different from $arbitrary_data.
+
+However, doing this immediately after:
+
+    my $parsed_data_2 = $c->parse($r->render($parsed_data));
+
+Should produce the same data structure again.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012-2014 Igor Afanasyev <igor.afanasyev@gmail.com>
+
+=head1 SEE ALSO
+
+L<https://github.com/iafan/Config-Neat>
+
+=cut
 
 package Config::Neat::Render;
 
@@ -18,12 +192,12 @@ sub new {
         indentation     =>  4, # number of spaces to indent each nested block contents with
         key_spacing     =>  4, # number of spaces between a key and and a value
 
-        wrap_width      => 60, # suggested maximum width of the multiline string or array
+        wrap_width      => 60, # a suggested maximum width of each line in a multiline string or array
 
         brace_under     =>  1, # if true, put the opening brace under the key name, not on the same line
         separate_blocks =>  1, # if true, surrond blocks with empty lines for better readability
         align_all       =>  1, # if true, align all values in the configuration file
-                               # (by default values are aligned only within current block)
+                               # (otherwise the values are aligned only within current block)
 
         sort            => undef, # can be a true value if you want to sort keys alphabetically
                                   # or a reference to an array with an ordered list of key names
