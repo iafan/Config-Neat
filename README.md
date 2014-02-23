@@ -1,21 +1,26 @@
 About Config::Neat
 ==================
 
-Configuration files don't have to be ugly. Inspired by [nginx configuration files](http://wiki.nginx.org/FullExample)
+Configuration files don't have to be ugly. Inspired by
+[nginx configuration files](http://wiki.nginx.org/FullExample)
 I decided to go a bit further and implement a format which is highly readable,
 less error prone, requires little to no special markup, and yet is robust
 to allow nested blocks for the projects that require more than just a plain
 key-value list.
 
-Currently Config::Neat is implemented as a Perl module.
+Currently Config::Neat is implemented as a suite of Perl modules
+which, in addition to parsing and rendering configuration files,
+implement automatic configuration file inheritance (aka includes)
+and validation against schema (see below).
 
 ### Simple Syntax Example
 In its simplest form, the configuration file can look like this:
 
     # Server configuration
-    server    Some string
-    port      8080
-    use_ssl   YES
+    server     Some string
+    port       8080
+    port       8081
+    use_ssl    YES
 
 You are not forced to enclose strings in quotes, or specify delimiters
 at the end of each line; you will never need to escape single or double quotes.
@@ -45,12 +50,12 @@ offer you such an opportunity:
         virtual_hosts {
 
             www.domain.com {
-                root      /var/www/domain
+                root            /var/www/domain
                 ...
             }
 
             www.otherdomain.com {
-                root      /var/www/otherdomain
+                root            /var/www/otherdomain
                 ...
             }
         }
@@ -64,7 +69,8 @@ Perl Module
 -----------
 
 Perl module is located in `perl/lib` subdirectory.
-It depends on [Tie::IxHash](http://search.cpan.org/~chorny/Tie-IxHash/) module available from CPAN.
+It depends on [Tie::IxHash](http://search.cpan.org/~chorny/Tie-IxHash/)
+module available from CPAN.
 
 ### Synopsis
 
@@ -87,6 +93,20 @@ It depends on [Tie::IxHash](http://search.cpan.org/~chorny/Tie-IxHash/) module a
     # $log_format now is a scalar:
     #     '$remote_addr - $remote_user [$time] $status $size $request'
 
+
+## Config::Neat::Inheritable
+
+This module adds config inheritance to Config::Neat files by automatically
+processing `@inherit file#subnode`, `-somekey` and `+otherkey` keys.
+See [Config::Neat::Inheritable source code](perl/lib/Config/Neat/Inheritable.pm)
+for further explanation.
+
+## Config::Neat::Schema
+
+This module adds config validation against provided schema (schema itself
+can be defined using Config::Neat format). See
+[Config::Neat::Schema source code](perl/lib/Config/Neat/Schema.pm)
+for further explanation.
 
 ## Config::Neat::Render
 
@@ -113,7 +133,8 @@ for boolean types, no null values, etc.
 
 It's the developer's responsibility to treat any given parameter as a boolean,
 or string, or an array. This means that once you serialize your string into
-Config::Neat format and parse it back, it will be converted to an array.
+Config::Neat format and parse it back, it will be converted to an array,
+and you will need to use `->as_string` method to get the value as string.
 
 In other words, when doing this:
 
@@ -156,8 +177,9 @@ The output will be:
 
     foo    Hello, World!
 
-Note that hashes in Perl do not guarantee the correct order, so blocks may have individual parameters shuffled randomly.
-To sort the keys, you can provide a reference to an ordered list of key names in the `sort` option:
+Note that hashes in Perl do not guarantee the correct order, so blocks may have
+individual parameters shuffled randomly. To sort the keys, you can provide a reference
+to an ordered list of key names in the `sort` option:
 
     ...
 
@@ -199,6 +221,6 @@ for [Sublime Text](http://www.sublimetext.com/) desktop editor
 (also compatible with [TextMate](http://macromates.com/)), and for
 JavaScript-based editor called [CodeMirror](http://codemirror.net/).
 
-You can also use CodeMirror with Config::Neat highlighter to [statically highlight](http://codemirror.net/demo/runmode.html)
+You can also use CodeMirror with Config::Neat highlighter to
+[statically highlight](http://codemirror.net/demo/runmode.html)
 configuration snippets/examples within web pages.
-
