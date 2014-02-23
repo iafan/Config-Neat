@@ -8,7 +8,7 @@ my $builder = Module::Build->new(
     license             => 'perl',
     dist_author         => 'Igor Afanasyev <igor.afanasyev@gmail.com>',
     dist_version_from   => 'lib/Config/Neat.pm',
-    release_status      => 'stable',
+    release_status      => 'beta',
     configure_requires  => {
         'Module::Build' => 0,
     },
