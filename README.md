@@ -202,16 +202,12 @@ Alternatively, setting `sort` to a true value will just sort keys alphabetically
 Tools
 -----
 
-### /perl/bin/dump_nconf.pl
+### [dump_nconf.pl](perl/bin/dump_nconf.pl)
 
-This script will read the configuration file from a pipe (or STDIN)
-and emit the parsed data structure created by Data::Dumper.
-This script can be used to validate the syntax of the configuration file
-and understand its internal tree representation.
-
-#### Usage:
-
-    perl dump_nconf.pl < config.nconf
+This script will read the configuration file
+and emit the parsed data structure in either Config::Neat::Render, Data::Dumper
+or JSON format. This script can be used to validate the syntax of the
+configuration file and understand its internal tree representation.
 
 Syntax Highlighters
 ------------
