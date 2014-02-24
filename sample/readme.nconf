@@ -158,6 +158,22 @@ my_section param1 param2 `param 3`
 }
 
 /*
+    There can be multiple keys with the same name
+    within one {...} block. Such keys will be merged together into an outer
+    array (so the resulting data will be an 'array of arrays' or 'array of blocks')
+*/
+
+my_section one {
+    my-key                          my value
+    my-key-2                        my value 2
+}
+
+my_section two {
+    my-key                          my value
+    my-key-2                        my value 2
+}
+
+/*
     Rules below are relevant for highlighting in Sublime Text;
     they do not affect the parsing logic.
 
@@ -177,3 +193,8 @@ my_section param1 param2 `param 3`
 */
 
 param       foo %bar% baz
+
+/*
+    Also, parameters like %foo% are also highlighted
+    in a special way:
+*/
