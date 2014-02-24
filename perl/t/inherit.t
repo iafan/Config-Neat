@@ -45,26 +45,51 @@ foreach my $test_filename (@nconf_files) {
         my $reference_filename = $test_filename;
         $reference_filename =~ s|/inherit/tests/|/inherit/reference/|;
 
-        if ($init) {
-            # init mode: create reference file
-            my $data1 = $c->parse_file($test_filename);
-            ok($data1, '$data1 is defined');
+        my ($text1, $data1);
 
-            my $text1 = $r->render($data1);
-            ok($text1, '$text1 is defined');
+        if ($init) {
+
+            # init mode: create reference file
+
+            eval {
+                $data1 = $c->parse_file($test_filename);
+            };
+            if ($@) {
+                ok($@, '$@ is defined');
+
+                $reference_filename =~ s|\.nconf$|.nconf_parse_file_error|;
+                $text1 = $@;
+                $text1 =~ s/ at \S+? line \d+\.$//;
+            } else {
+                ok($data1, '$data1 is defined');
+
+                $text1 = $r->render($data1);
+                ok($text1, '$text1 is defined');
+            }
 
             write_file($reference_filename, {binmode => ':utf8'}, $text1);
             ok(-f $reference_filename, "$reference_filename file should exist");
         } else {
             # test mode: read and compare reference file
-            BAIL_OUT("$reference_filename file should exist; can't continue") unless -f $reference_filename;
 
-            my $data1 = $c->parse_file($test_filename);
-            ok($data1, '$data1 is defined');
+            eval {
+                $data1 = $c->parse_file($test_filename);
+            };
+            if ($@) {
+                ok($@, '$@ is defined');
 
-            my $text1 = $r->render($data1);
-            ok($text1, '$text1 is defined');
+                $reference_filename =~ s|\.nconf$|.nconf_parse_file_error|;
+                $text1 = $@;
+                $text1 =~ s/ at \S+? line \d+\.$//;
+            } else {
+                ok($data1, '$data1 is defined');
 
+                $text1 = $r->render($data1);
+                ok($text1, '$text1 is defined');
+
+            }
+
+            ok(-f $reference_filename, "$reference_filename reference file should exist");
             my $reference_text = read_file($reference_filename, {binmode => ':utf8'});
             is($text1, $reference_text, 'Text should be equal to reference file contents: '.$reference_filename);
         }
