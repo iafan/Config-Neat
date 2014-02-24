@@ -72,8 +72,10 @@ sub new {
     my ($class) = @_;
 
     my $self = {
-      'cfg' => Config::Neat->new(),
-      'cache' => {}
+        cfg           => Config::Neat->new(),
+        cache         => {},
+        saved_context => [],
+        include_stack => [],
     };
 
     bless $self, $class;
@@ -86,9 +88,13 @@ sub parse_file {
     my ($self, $filename, $binmode) = @_;
     $self->{cache} = {};
     $self->{binmode} = $binmode;
-    $self->{orig_data} = $self->{cfg}->parse_file($filename, $binmode);
-    my $data = _clone($self->{orig_data});
+    # we need to preserve $self->{orig_data} and then restore it, so that
+    # we will always have the current context file data for in-file @inherit rules
+    push @{$self->{saved_context}}, $self->{orig_data};
+    my $data = $self->{cfg}->parse_file($filename, $binmode);
+    $self->{orig_data} = _clone($data);
     $self->expand_data(\$data, dirname(rel2abs($filename)));
+    $self->{orig_data} = pop @{$self->{saved_context}};
     return $data;
 }
 
@@ -97,10 +103,12 @@ sub parse_file {
 sub parse {
     my ($self, $nconf, $dir) = @_;
     $self->{cache} = {};
+    push @{$self->{saved_context}}, $self->{orig_data};
+    my $data = $self->{cfg}->parse($nconf);
+    $self->{orig_data} = _clone($data);
     $dir = dirname(rel2abs($0)) unless $dir;
-    $self->{orig_data} = $self->{cfg}->parse($nconf);
-    my $data = _clone($self->{orig_data});
     $self->expand_data(\$data, $dir);
+    $self->{orig_data} = pop @{$self->{saved_context}};
     return $data;
 }
 
@@ -124,14 +132,25 @@ sub expand_data {
                 $filename = '' if $filename eq '.'; # allow .#selector style to indicate the current file
                 die "Neither filename nor selector are specified" unless $filename or $selector;
 
+                # normalize path and selector
+                my $fullpath = rel2abs($filename, $dir); # make path absolute relative to current context dir
+                $selector =~ s/^\///; # remove leading slash, if any
+
+                # make sure we don't have any infinite loops
+                my $key = $fullpath.'#'.$selector;
+                map {
+                    die "Infinite loop detected at `\@inherit $key`" if $key eq $_;
+                } @{$self->{include_stack}};
+
+                push @{$self->{include_stack}}, $key;
+
                 my $merge_node;
                 if (exists $self->{cache}->{$from}) {
-                    $merge_node = $self->{cache}->{$from};
+                    $merge_node = _clone($self->{cache}->{$from});
                 } else {
                     my $merge_cfg;
                     my $merge_dir = $dir;
                     if ($filename) {
-                        my $fullpath = rel2abs($filename, $dir);
                         $merge_dir = dirname($fullpath);
 
                         if (exists $self->{cache}->{$fullpath}) {
@@ -149,6 +168,8 @@ sub expand_data {
                     $self->{cache}->{$from} = $merge_node;
                 }
                 $self->merge_data($noderef, $merge_node, $dir);
+
+                pop @{$self->{include_stack}};
             }
         }
     }
@@ -158,7 +179,7 @@ sub select_subnode {
     my ($self, $node, $selector, $dir) = @_;
 
     die "Bad selector syntax (double slash) in '$selector'" if $selector =~ m/\/{2,}/;
-    $selector =~ s/^\///; # remove leading slash, if any
+    die "Bad selector syntax (leading slash) in '$selector'" if $selector =~ m/^\//;
 
     return _clone($node) if $selector eq '';
 
