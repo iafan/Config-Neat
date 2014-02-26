@@ -75,10 +75,7 @@ sub new {
     my ($class) = @_;
 
     my $self = {
-        cfg           => Config::Neat->new(),
-        cache         => {},
-        saved_context => [],
-        include_stack => [],
+        cfg => Config::Neat->new(),
     };
 
     bless $self, $class;
@@ -114,8 +111,8 @@ sub _parse {
 
     if ($init) {
         $self->{cache} = {};
-        $self->{include_stack} = [];
         $self->{saved_context} = [];
+        $self->{include_stack} = [];
     }
 
     $dir = dirname(rel2abs($0)) unless $dir;
@@ -131,7 +128,7 @@ sub _parse {
     $self->{orig_data} = _clone($data);
 
     # process @inherit rules
-    $self->expand_data(\$data, $dir);
+    $data = $self->expand_data($data, $dir);
 
     # restore the context
     $self->{orig_data} = pop @{$self->{saved_context}};
@@ -140,19 +137,19 @@ sub _parse {
 }
 
 sub expand_data {
-    my ($self, $noderef, $dir) = @_;
+    my ($self, $node, $dir) = @_;
 
-    if (ref($$noderef) eq 'HASH') {
+    if (ref($node) eq 'HASH') {
         # expand child nodes
         map {
-            $self->expand_data(\$$noderef->{$_}, $dir);
-        } keys %$$noderef;
+            $node->{$_} = $self->expand_data($node->{$_}, $dir);
+        } keys %$node;
 
-        if (exists $$noderef->{'@inherit'}) {
-            die "The value of '\@inherit' must be a string or array" unless ref($$noderef->{'@inherit'}) eq 'Config::Neat::Array';
+        if (exists $node->{'@inherit'}) {
+            die "The value of '\@inherit' must be a string or array" unless ref($node->{'@inherit'}) eq 'Config::Neat::Array';
 
-            my @a = @{$$noderef->{'@inherit'}};
-            delete $$noderef->{'@inherit'};
+            my @a = @{$node->{'@inherit'}};
+            delete $node->{'@inherit'};
 
             my $final_node = {};
             tie(%$final_node, 'Tie::IxHash');
@@ -195,16 +192,18 @@ sub expand_data {
                     }
                     $merge_node = $self->select_subnode($merge_cfg, $selector, $dir);
 
-                    $self->expand_data(\$merge_node, $merge_dir);
+                    $merge_node = $self->expand_data($merge_node, $merge_dir);
 
                     $self->{cache}->{$from} = $merge_node;
                 }
-                $self->merge_data($noderef, $merge_node, $dir);
+                $node = $self->merge_data($node, $merge_node, $dir);
 
                 pop @{$self->{include_stack}};
             }
         }
     }
+
+    return $node;
 }
 
 sub select_subnode {
@@ -234,57 +233,59 @@ sub _clone {
 	return ref($data) ? dclone($data) : $data;
 }
 
-# merge into data1ref tree structure from data2
-# data1ref is the one that may contain `-key` and `+key` entries
+# merge into data1 tree structure from data2
+# data1 is the one that may contain `-key` and `+key` entries
 sub merge_data {
-    my ($self, $data1ref, $data2, $dir) = @_;
+    my ($self, $data1, $data2, $dir) = @_;
 
-    if (ref($$data1ref) eq 'HASH') {
+    if (ref($data1) eq 'HASH') {
         my $data2_is_hash = ref($data2) eq 'HASH';
-        foreach my $key (keys %$$data1ref) {
+        foreach my $key (keys %$data1) {
             if ($key =~ m/^-(.*)$/) {
                 my $merge_key = $1;
-                die "Key '$key' contains bogus data; expected an empty or true value" unless $$data1ref->{$key}->as_boolean;
-                delete $$data1ref->{$key};
+                die "Key '$key' contains bogus data; expected an empty or true value" unless $data1->{$key}->as_boolean;
+                delete $data1->{$key};
                 delete $data2->{$merge_key} if $data2_is_hash;
             } elsif ($key =~ m/^\+(.*)$/) {
                 my $merge_key = $1;
-                $$data1ref->{$merge_key} = $$data1ref->{$key};
-                delete $$data1ref->{$key};
+                $data1->{$merge_key} = $data1->{$key};
+                delete $data1->{$key};
 
                 my $hash_array_merge_mode =
-                    is_hash($$data1ref->{$merge_key}) &&
+                    is_hash($data1->{$merge_key}) &&
                     is_hash($data2->{$merge_key});
 
                 if ($hash_array_merge_mode) {
                     my $offset = get_next_auto_key($data2->{$merge_key});
-                    offset_keys($$data1ref->{$merge_key}, $offset);
+                    offset_keys($data1->{$merge_key}, $offset);
                 }
 
-                $self->merge_data(\$$data1ref->{$merge_key}, $data2->{$merge_key}, $dir);
+                $data1->{$merge_key} = $self->merge_data($data1->{$merge_key}, $data2->{$merge_key}, $dir);
                 delete $data2->{$merge_key} if $data2_is_hash;
 
                 if ($hash_array_merge_mode) {
-                    reorder_numerically($$data1ref->{$merge_key});
+                    reorder_numerically($data1->{$merge_key});
                 }
             } else {
-                $self->merge_data(\$$data1ref->{$key}, undef, $dir);
+                $data1->{$key} = $self->merge_data($data1->{$key}, undef, $dir);
             }
         }
         if ($data2_is_hash) {
             foreach my $key (keys %$data2) {
-                if (exists $data2->{$key} && !exists $$data1ref->{$key}) {
-                    $$data1ref->{$key} = $data2->{$key};
+                if (exists $data2->{$key} && !exists $data1->{$key}) {
+                    $data1->{$key} = $data2->{$key};
                 }
             }
         }
-    } elsif (ref($$data1ref) eq 'Config::Neat::Array') {
+    } elsif (ref($data1) eq 'Config::Neat::Array') {
         if (ref($data2) eq 'Config::Neat::Array') {
-            unshift(@$$data1ref, @$data2);
+            unshift(@$data1, @$data2);
         }
     } else {
         die "Unknown data type to merge";
     }
+
+    return $data1;
 }
 
 1;
