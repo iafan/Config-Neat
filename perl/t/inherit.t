@@ -45,7 +45,7 @@ foreach my $test_filename (@nconf_files) {
         my $reference_filename = $test_filename;
         $reference_filename =~ s|/inherit/tests/|/inherit/reference/|;
 
-        my ($text1, $data1);
+        my ($text1, $data1, $error_text);
 
         if ($init) {
 
@@ -79,19 +79,28 @@ foreach my $test_filename (@nconf_files) {
                 ok($@, '$@ is defined');
 
                 $reference_filename =~ s|\.nconf$|.nconf_parse_file_error|;
-                $text1 = $@;
+                $error_text = $text1 = $@;
                 $text1 =~ s/ at \S+? line \d+\.$//;
             } else {
                 ok($data1, '$data1 is defined');
 
                 $text1 = $r->render($data1);
                 ok($text1, '$text1 is defined');
-
             }
 
             ok(-f $reference_filename, "$reference_filename reference file should exist");
-            my $reference_text = read_file($reference_filename, {binmode => ':utf8'});
-            is($text1, $reference_text, 'Text should be equal to reference file contents: '.$reference_filename);
+            if (-f $reference_filename) {
+                my $reference_text = read_file($reference_filename, {binmode => ':utf8'});
+                is($text1, $reference_text, 'Text should be equal to reference file contents: '.$reference_filename);
+            } else {
+                if ($error_text) {
+                    print "Reference file not found, here is the reported error:\n".
+                          "=====================\n$error_text\n=====================\n";
+                } else {
+                    print "Reference file not found, here is the reported result:\n".
+                          "=====================\n$text1\n=====================\n";
+                }
+            }
         }
     }
 }

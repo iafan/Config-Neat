@@ -1,4 +1,16 @@
-# Copyright (C) 2012-2014 Igor Afanasyev, https://github.com/iafan/Config-Neat
+=head1 NAME
+
+Config::Neat::Array - Class for array-like config nodes
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012-2014 Igor Afanasyev <igor.afanasyev@gmail.com>
+
+=head1 SEE ALSO
+
+L<https://github.com/iafan/Config-Neat>
+
+=cut
 
 package Config::Neat::Array;
 
@@ -79,4 +91,4 @@ sub as_hash {
     return $result;
 } # end sub
 
-1; # return true
+1;

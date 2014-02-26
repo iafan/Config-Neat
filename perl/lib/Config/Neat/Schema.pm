@@ -187,3 +187,5 @@ sub get_node_type {
     return 'STRING' if ref(\$node) eq 'SCALAR';
     return 'UNKNOWN';
 }
+
+1;

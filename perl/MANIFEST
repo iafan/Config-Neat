@@ -8,6 +8,7 @@ lib/Config/Neat/Array.pm
 lib/Config/Neat/Inheritable.pm
 lib/Config/Neat/Render.pm
 lib/Config/Neat/Schema.pm
+lib/Config/Neat/Util.pm
 t/data/inherit/inc/01.nconf
 t/data/inherit/inc/02.nconf
 t/data/inherit/inc/03.nconf
@@ -40,6 +41,8 @@ t/data/inherit/reference/26.nconf
 t/data/inherit/reference/27.nconf_parse_file_error
 t/data/inherit/reference/28.nconf_parse_file_error
 t/data/inherit/reference/29.nconf_parse_file_error
+t/data/inherit/reference/30.nconf_parse_file_error
+t/data/inherit/reference/31.nconf
 t/data/inherit/tests/01.nconf
 t/data/inherit/tests/02.nconf
 t/data/inherit/tests/03.nconf
@@ -69,6 +72,8 @@ t/data/inherit/tests/26.nconf
 t/data/inherit/tests/27.nconf
 t/data/inherit/tests/28.nconf
 t/data/inherit/tests/29.nconf
+t/data/inherit/tests/30.nconf
+t/data/inherit/tests/31.nconf
 t/data/parse/01.nconf
 t/data/render/output.nconf
 t/data/schema/01.nconf

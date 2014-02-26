@@ -180,6 +180,8 @@ our $VERSION = '0.2';
 
 use strict;
 
+use Config::Neat::Util qw(is_code is_hash is_array is_scalar is_neat_array
+                          is_simple_array hash_has_sequential_keys);
 use Tie::IxHash;
 
 #
@@ -255,51 +257,6 @@ sub render {
         $options->{sort} = \%h;
     }
 
-    sub is_code {
-        my $node = shift;
-        return ref($node) eq 'CODE';
-    }
-
-    sub is_hash {
-        my $node = shift;
-        return ref($node) eq 'HASH';
-    }
-
-    sub is_array {
-        my $node = shift;
-        return ref($node) eq 'ARRAY';
-    }
-
-    sub is_neat_array {
-        my $node = shift;
-        return ref($node) eq 'Config::Neat::Array';
-    }
-
-    sub is_scalar {
-        my $node = shift;
-        return (ref(\$node) eq 'SCALAR') or (ref($node) eq 'SCALAR');
-    }
-
-    sub is_simple_array {
-        my $node = shift;
-
-        return 1 if is_scalar($node);
-        return undef if is_hash($node);
-
-        my $contains_hash = undef;
-        my $contains_scalar = undef;
-
-        foreach my $value (@$node) {
-            if (is_hash($value)) {
-                $contains_hash |= 1;
-            } else {
-                $contains_scalar |= is_scalar($value);
-            }
-            die "Mixing hashes with simple arrays/scalars within one node is not supported" if $contains_hash && $contains_scalar;
-        }
-        return $contains_scalar;
-    }
-
     sub max_key_length {
         my ($node, $options, $indent, $recursive) = @_;
 
@@ -330,18 +287,6 @@ sub render {
             } @$node;
         }
         return $len;
-    }
-
-    sub hash_with_array_like_keys {
-        my $node = shift;
-        die "Not a hash" unless is_hash($node);
-
-        my $i = 0;
-        # sort keys numerically
-        foreach my $key (sort { $a <=> $b } keys %$node) {
-            return undef if ($key + 0 ne $key) or ($i++ != $key);
-        }
-        return 1;
     }
 
     sub convert_array_to_hash {
@@ -495,7 +440,7 @@ sub render {
         }
 
         if (is_hash($node)) {
-            $array_mode = hash_with_array_like_keys($node);
+            $array_mode = hash_has_sequential_keys($node);
             $key_length = $options->{align_all} ? $options->{global_key_length} : max_key_length($node, $options, $indent);
 
         } else {
@@ -526,6 +471,6 @@ sub render {
     }
 
     return render_node_recursively($data, $options, 0);
-} # end sub
+}
 
-1; # return true
+1;

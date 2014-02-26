@@ -61,6 +61,8 @@ our $VERSION = '0.2';
 use strict;
 
 use Config::Neat;
+use Config::Neat::Util qw(is_hash hash_has_sequential_keys get_next_auto_key
+                          offset_keys reorder_numerically read_file);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Storable qw(dclone);
@@ -86,29 +88,53 @@ sub new {
 # and expand '@inherit' blocks
 sub parse_file {
     my ($self, $filename, $binmode) = @_;
-    $self->{cache} = {};
+
     $self->{binmode} = $binmode;
-    # we need to preserve $self->{orig_data} and then restore it, so that
-    # we will always have the current context file data for in-file @inherit rules
-    push @{$self->{saved_context}}, $self->{orig_data};
-    my $data = $self->{cfg}->parse_file($filename, $binmode);
-    $self->{orig_data} = _clone($data);
-    $self->expand_data(\$data, dirname(rel2abs($filename)));
-    $self->{orig_data} = pop @{$self->{saved_context}};
-    return $data;
+
+    return $self->_parse_file($filename, 1); # init
 }
 
 # Given a string representation of the config, returns a parsed tree
 # with expanded '@inherit' blocks
 sub parse {
     my ($self, $nconf, $dir) = @_;
-    $self->{cache} = {};
-    push @{$self->{saved_context}}, $self->{orig_data};
-    my $data = $self->{cfg}->parse($nconf);
-    $self->{orig_data} = _clone($data);
+    return $self->_parse($nconf, $dir, 1); # init
+}
+
+sub _parse_file {
+    my ($self, $filename, $init) = @_;
+
+    my $dir = dirname(rel2abs($filename));
+    return $self->_parse(read_file($filename, $self->{binmode}), $dir, $init);
+}
+
+sub _parse {
+    my ($self, $nconf, $dir, $init) = @_;
+
+    if ($init) {
+        $self->{cache} = {};
+        $self->{include_stack} = [];
+        $self->{saved_context} = [];
+    }
+
     $dir = dirname(rel2abs($0)) unless $dir;
+
+    # we need to preserve $self->{orig_data} and then restore it, so that
+    # we will always have the current context file data for in-file @inherit rules
+    push @{$self->{saved_context}}, $self->{orig_data};
+
+    # parse the file
+    my $data = $self->{cfg}->parse($nconf);
+
+    # preserve the data in the current context
+    $self->{orig_data} = _clone($data);
+
+    # process @inherit rules
     $self->expand_data(\$data, $dir);
+
+    # restore the context
     $self->{orig_data} = pop @{$self->{saved_context}};
+
     return $data;
 }
 
@@ -156,7 +182,7 @@ sub expand_data {
                         if (exists $self->{cache}->{$fullpath}) {
                             $merge_cfg = $self->{cache}->{$fullpath};
                         } else {
-                            $merge_cfg = $self->{cache}->{$fullpath} = $self->parse_file($fullpath, $self->{binmode});
+                            $merge_cfg = $self->{cache}->{$fullpath} = $self->_parse_file($fullpath);
                         }
                     } else {
                         $merge_cfg = _clone($self->{orig_data});
@@ -219,8 +245,24 @@ sub merge_data {
                 my $merge_key = $1;
                 $$data1ref->{$merge_key} = $$data1ref->{$key};
                 delete $$data1ref->{$key};
+
+                my $hash_array_merge_mode =
+                    is_hash($$data1ref->{$merge_key}) &&
+                    is_hash($data2->{$merge_key}) &&
+                    hash_has_sequential_keys($$data1ref->{$merge_key}) &&
+                    hash_has_sequential_keys($data2->{$merge_key});
+
+                if ($hash_array_merge_mode) {
+                    my $offset = get_next_auto_key($data2->{$merge_key});
+                    offset_keys($$data1ref->{$merge_key}, $offset);
+                }
+
                 $self->merge_data(\$$data1ref->{$merge_key}, $data2->{$merge_key}, $dir);
                 delete $data2->{$merge_key} if $data2_is_hash;
+
+                if ($hash_array_merge_mode) {
+                    reorder_numerically($$data1ref->{$merge_key});
+                }
             } else {
                 $self->merge_data(\$$data1ref->{$key}, undef, $dir);
             }
@@ -240,3 +282,5 @@ sub merge_data {
         die "Unknown data type to merge";
     }
 }
+
+1;

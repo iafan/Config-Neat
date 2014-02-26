@@ -76,7 +76,15 @@ our $VERSION = '0.2';
 use strict;
 
 use Config::Neat::Array;
+use Config::Neat::Util qw(get_next_auto_key read_file);
 use Tie::IxHash;
+
+my $LINE_START    = 0;
+my $KEY           = 1;
+my $WHITESPACE    = 2;
+my $VALUE         = 3;
+my $LINE_COMMENT  = 4;
+my $BLOCK_COMMENT = 5;
 
 #
 # Initialize object
@@ -99,13 +107,6 @@ sub parse {
     my $new = {};
     tie(%$new, 'Tie::IxHash');
 
-    my $LINE_START    = 0;
-    my $KEY           = 1;
-    my $WHITESPACE    = 2;
-    my $VALUE         = 3;
-    my $LINE_COMMENT  = 4;
-    my $BLOCK_COMMENT = 5;
-
     my $o = {
         context            => [$new],
         c                  => undef,
@@ -124,7 +125,6 @@ sub parse {
         converted_to_array => undef,
     };
 
-    my $auto_key        = 0;
     my $in_raw_mode     = undef;
     my $line            = 1;
 
@@ -225,10 +225,7 @@ sub parse {
             end_of_value($o);
 
             if (!$o->{key}) {
-                while (exists $o->{context}->[$#{$o->{context}}]->{$auto_key}) {
-                    $auto_key++;
-                }
-                $o->{key} = $auto_key++;
+                $o->{key} = get_next_auto_key($o->{context}->[$#{$o->{context}}]);
             }
 
             my $new = {};
@@ -254,7 +251,6 @@ sub parse {
             $o->{values} = Config::Neat::Array->new();
             $o->{key} = '';
             $o->{value} = undef;
-            $auto_key = 0;
             $o->{mode} = $LINE_START;
             $o->{first_value_pos} = 0;
 
@@ -405,13 +401,7 @@ sub parse {
 # Given file name, will read this file in the specified mode (defaults to UTF-8) and parse it
 sub parse_file {
     my ($self, $filename, $binmode) = @_;
-
-    open(CFG, $filename) or die "Can't open [$filename]: $!";
-    binmode(CFG, $binmode || ':utf8');
-    my $text = join('', <CFG>);
-    close(CFG);
-
-    return $self->parse($text);
+    return $self->parse(read_file($filename, $binmode));
 } # end sub
 
 1; # return true
