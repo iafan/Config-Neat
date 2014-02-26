@@ -180,7 +180,7 @@ our $VERSION = '0.2';
 
 use strict;
 
-use Config::Neat::Util qw(is_code is_hash is_array is_scalar is_neat_array
+use Config::Neat::Util qw(new_ixhash is_code is_hash is_array is_scalar is_neat_array
                           is_simple_array hash_has_sequential_keys);
 use Tie::IxHash;
 
@@ -294,8 +294,7 @@ sub render {
 
         my $i = 0;
 
-        my $h = {};
-        tie(%$h, 'Tie::IxHash');
+        my $h = new_ixhash;
 
         foreach my $value (@$node) {
             $h->{$i++} = $value;

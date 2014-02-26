@@ -23,6 +23,7 @@ use Tie::IxHash;
 our @ISA = qw(Exporter);
 
 our @EXPORT_OK = qw(
+    new_ixhash
     is_number
     is_code
     is_hash
@@ -38,6 +39,12 @@ our @EXPORT_OK = qw(
     reorder_numerically
     read_file
 );
+
+sub new_ixhash {
+    my $new = {};
+    tie(%$new, 'Tie::IxHash');
+    return $new;
+}
 
 sub is_number {
     my $n = shift;

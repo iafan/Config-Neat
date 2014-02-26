@@ -76,7 +76,7 @@ our $VERSION = '0.2';
 use strict;
 
 use Config::Neat::Array;
-use Config::Neat::Util qw(get_next_auto_key read_file);
+use Config::Neat::Util qw(new_ixhash get_next_auto_key read_file);
 use Tie::IxHash;
 
 my $LINE_START    = 0;
@@ -104,8 +104,7 @@ sub new {
 sub parse {
     my ($self, $nconf) = @_;
 
-    my $new = {};
-    tie(%$new, 'Tie::IxHash');
+    my $new = new_ixhash;
 
     my $o = {
         context            => [$new],
@@ -228,8 +227,7 @@ sub parse {
                 $o->{key} = get_next_auto_key($o->{context}->[$#{$o->{context}}]);
             }
 
-            my $new = {};
-            tie(%$new, 'Tie::IxHash');
+            my $new = new_ixhash;
 
             my $current_ctx = $o->{context}->[$#{$o->{context}}];
             if (exists $current_ctx->{$o->{key}}) {

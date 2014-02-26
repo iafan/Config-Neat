@@ -61,7 +61,7 @@ our $VERSION = '0.2';
 use strict;
 
 use Config::Neat;
-use Config::Neat::Util qw(is_hash get_next_auto_key
+use Config::Neat::Util qw(new_ixhash is_hash is_neat_array get_next_auto_key
                           offset_keys reorder_numerically read_file);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
@@ -151,9 +151,6 @@ sub expand_data {
             my @a = @{$node->{'@inherit'}};
             delete $node->{'@inherit'};
 
-            my $final_node = {};
-            tie(%$final_node, 'Tie::IxHash');
-
             foreach my $from (@a) {
                 my ($filename, $selector) = split('#', $from, 2);
                 # allow .#selector style to indicate the current file, since #selector
@@ -238,8 +235,11 @@ sub _clone {
 sub merge_data {
     my ($self, $data1, $data2, $dir) = @_;
 
-    if (ref($data1) eq 'HASH') {
-        my $data2_is_hash = ref($data2) eq 'HASH';
+    if (is_hash($data1)) {
+        my $data2_is_hash = is_hash($data2);
+
+        my $result = new_ixhash;
+
         foreach my $key (keys %$data1) {
             if ($key =~ m/^-(.*)$/) {
                 my $merge_key = $1;
@@ -277,12 +277,8 @@ sub merge_data {
                 }
             }
         }
-    } elsif (ref($data1) eq 'Config::Neat::Array') {
-        if (ref($data2) eq 'Config::Neat::Array') {
-            unshift(@$data1, @$data2);
-        }
-    } else {
-        die "Unknown data type to merge";
+    } elsif (is_neat_array($data1) && is_neat_array($data2)) {
+        unshift(@$data1, @$data2);
     }
 
     return $data1;
