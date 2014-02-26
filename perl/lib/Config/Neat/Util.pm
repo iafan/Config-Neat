@@ -18,9 +18,12 @@ our $VERSION = '0.2';
 
 use strict;
 
+use Tie::IxHash;
+
 our @ISA = qw(Exporter);
 
 our @EXPORT_OK = qw(
+    is_number
     is_code
     is_hash
     is_ixhash
@@ -31,9 +34,15 @@ our @EXPORT_OK = qw(
     hash_has_sequential_keys
     get_next_auto_key
     offset_keys
+    get_keys_ordered
     reorder_numerically
     read_file
 );
+
+sub is_number {
+    my $n = shift;
+    return ($n + 0) eq $n;
+}
 
 sub is_code {
     my $node = shift;
@@ -107,7 +116,7 @@ sub get_next_auto_key {
     # get max(key)
     my $i = -1; # so that next key will start with 0
     map {
-        $i = $_ if $_ > $i;
+        $i = $_ if $_ > $i && is_number($_);
     } keys %$node;
 
     # return max + 1
@@ -119,16 +128,33 @@ sub get_next_auto_key {
 sub offset_keys {
     my ($node, $offset) = @_;
     die "Not a hash" unless is_hash($node);
-    die "Offset should be a positive number" unless $offset > 0;
+    die "Offset is a negative number" if $offset < 0;
+    return if $offset == 0;
 
     # sort keys numerically in the reverse order
     my @a = sort {$b <=> $a} keys %$node;
 
     # remap keys
     map {
-        $node->{$_ + $offset} = $node->{$_};
-        delete $node->{$_};
+        if (is_number($_)) {
+            $node->{$_ + $offset} = $node->{$_};
+            delete $node->{$_};
+        }
     } @a;
+}
+
+# accepts an array of hasrefs
+sub get_keys_ordered {
+    my %result;
+    tie(%result, 'Tie::IxHash');
+
+    map {
+        map {
+            $result{$_} = 1;
+        } keys %$_;
+    } @_;
+
+    return keys %result;
 }
 
 sub reorder_numerically {
@@ -138,15 +164,22 @@ sub reorder_numerically {
     # sort keys numerically
     my @a = sort {$a <=> $b} keys %$node;
 
+    reorder($node, \@a);
+}
+
+sub reorder {
+    my ($node, $aref) = @_;
+    die "Not a Tie::IxHash" unless is_ixhash($node);
+
     # get values in the right order
-    my @values = map { $node->{$_} } @a;
+    my @values = map { $node->{$_} } @$aref;
 
     # clear all the keys
-    map { delete $node->{$_} } @a;
+    map { delete $node->{$_} } @$aref;
 
     # re-add the keys in the proper order
-    for (my $i = 0; $i < scalar @a; $i++) {
-        $node->{$a[$i]} = $values[$i];
+    for (my $i = 0; $i < scalar @$aref; $i++) {
+        $node->{$aref->[$i]} = $values[$i];
     }
 }
 

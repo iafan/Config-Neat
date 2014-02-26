@@ -61,11 +61,12 @@ our $VERSION = '0.2';
 use strict;
 
 use Config::Neat;
-use Config::Neat::Util qw(is_hash hash_has_sequential_keys get_next_auto_key
+use Config::Neat::Util qw(is_hash get_next_auto_key
                           offset_keys reorder_numerically read_file);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Storable qw(dclone);
+use Tie::IxHash;
 
 #
 # Initialize object
@@ -153,13 +154,18 @@ sub expand_data {
             my @a = @{$$noderef->{'@inherit'}};
             delete $$noderef->{'@inherit'};
 
+            my $final_node = {};
+            tie(%$final_node, 'Tie::IxHash');
+
             foreach my $from (@a) {
                 my ($filename, $selector) = split('#', $from, 2);
-                $filename = '' if $filename eq '.'; # allow .#selector style to indicate the current file
+                # allow .#selector style to indicate the current file, since #selector
+                # without the leading symbol will be treated as a comment line
+                $filename = '' if $filename eq '.';
                 die "Neither filename nor selector are specified" unless $filename or $selector;
 
                 # normalize path and selector
-                my $fullpath = rel2abs($filename, $dir); # make path absolute relative to current context dir
+                my $fullpath = rel2abs($filename, $dir); # make path absolute based on current context dir
                 $selector =~ s/^\///; # remove leading slash, if any
 
                 # make sure we don't have any infinite loops
@@ -248,9 +254,7 @@ sub merge_data {
 
                 my $hash_array_merge_mode =
                     is_hash($$data1ref->{$merge_key}) &&
-                    is_hash($data2->{$merge_key}) &&
-                    hash_has_sequential_keys($$data1ref->{$merge_key}) &&
-                    hash_has_sequential_keys($data2->{$merge_key});
+                    is_hash($data2->{$merge_key});
 
                 if ($hash_array_merge_mode) {
                     my $offset = get_next_auto_key($data2->{$merge_key});
