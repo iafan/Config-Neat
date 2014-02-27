@@ -81,6 +81,10 @@ _load_conf('09');
 _validate_conf('09');
 ok(ref($data->{jobs}) eq 'ARRAY', '09.nconf: /jobs is now an array of objects');
 
+_load_conf('10');
+_validate_conf('10');
+ok(ref($data->{jobs}) eq 'ARRAY', '10.nconf: /jobs is now an array of objects');
+
 done_testing();
 
 sub _load_conf {

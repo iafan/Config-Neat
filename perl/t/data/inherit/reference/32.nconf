@@ -7,7 +7,6 @@ foo
             key1    value1
         }
 
-        0
         {
             key2    value2
         }
@@ -23,27 +22,24 @@ foo2
 {
     foo_inner
     {
-        :label3
-        {
-            key3    value3 replacement
-        }
-
         :label1
         {
             key1    value1 replacement
         }
 
-        0
         {
             key2    value2
         }
 
-        1
+        :label3
+        {
+            key3    value3 replacement
+        }
+
         {
             key4    value4
         }
 
-        2
         {
             key5    value5
         }

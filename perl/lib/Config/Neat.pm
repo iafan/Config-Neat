@@ -71,12 +71,12 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 use strict;
 
 use Config::Neat::Array;
-use Config::Neat::Util qw(new_ixhash get_next_auto_key read_file);
+use Config::Neat::Util qw(is_neat_array new_ixhash get_next_auto_key read_file);
 use Tie::IxHash;
 
 my $LINE_START    = 0;
@@ -93,7 +93,7 @@ sub new {
     my ($class) = @_;
 
     my $self = {
-      'cfg' => {}
+        cfg => {}
     };
 
     bless $self, $class;
@@ -231,7 +231,7 @@ sub parse {
 
             my $current_ctx = $o->{context}->[$#{$o->{context}}];
             if (exists $current_ctx->{$o->{key}}) {
-                if (ref($current_ctx->{$o->{key}}) ne 'Config::Neat::Array') {
+                if (!is_neat_array($current_ctx->{$o->{key}})) {
                     $current_ctx->{$o->{key}} = Config::Neat::Array->new([$current_ctx->{$o->{key}}]);
                 }
                 $current_ctx->{$o->{key}}->push($new);
@@ -393,7 +393,7 @@ sub parse {
     end_of_value($o);
     end_of_param($o);
 
-    return $self->{'cfg'} = $o->{context}->[0];
+    return $self->{cfg} = $o->{context}->[0];
 } # end sub
 
 # Given file name, will read this file in the specified mode (defaults to UTF-8) and parse it

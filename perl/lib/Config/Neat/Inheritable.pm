@@ -15,13 +15,14 @@ File 01.nconf:
             pwd     1
         }
     }
+
     abc             def
 
 File 02.nconf:
 
     @inherit        01.nconf
 
-    +foo {
+    foo {
         bar         replace
     }
 
@@ -52,17 +53,21 @@ Resulting data structure will be equivalent to:
         bar         replace
     }
 
+Multiple inheritance is supported; use '.' do denote the the current file:
+
+    @inherit    01.nconf#foo 02.nconf#bar .#baz
+
 =cut
 
 package Config::Neat::Inheritable;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 use strict;
 
 use Config::Neat;
-use Config::Neat::Util qw(new_ixhash is_hash is_neat_array get_next_auto_key
-                          offset_keys reorder_numerically read_file);
+use Config::Neat::Util qw(new_ixhash is_hash is_neat_array get_next_auto_key offset_keys
+                          get_keys_in_order reorder_ixhash rename_ixhash_key read_file);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Storable qw(dclone);
@@ -151,6 +156,8 @@ sub expand_data {
             my @a = @{$node->{'@inherit'}};
             delete $node->{'@inherit'};
 
+            my $intermediate = new_ixhash;
+
             foreach my $from (@a) {
                 my ($filename, $selector) = split('#', $from, 2);
                 # allow .#selector style to indicate the current file, since #selector
@@ -188,15 +195,15 @@ sub expand_data {
                         $merge_cfg = _clone($self->{orig_data});
                     }
                     $merge_node = $self->select_subnode($merge_cfg, $selector, $dir);
-
                     $merge_node = $self->expand_data($merge_node, $merge_dir);
-
                     $self->{cache}->{$from} = $merge_node;
                 }
-                $node = $self->merge_data($node, $merge_node, $dir);
 
+                $intermediate = $self->merge_data($merge_node, $intermediate, $dir);
                 pop @{$self->{include_stack}};
             }
+
+            $node = $self->merge_data($node, $intermediate, $dir);
         }
     }
 
@@ -235,48 +242,49 @@ sub _clone {
 sub merge_data {
     my ($self, $data1, $data2, $dir) = @_;
 
-    if (is_hash($data1)) {
-        my $data2_is_hash = is_hash($data2);
-
-        my $result = new_ixhash;
+    if (is_hash($data1) && is_hash($data2)) {
+        my @keys = get_keys_in_order($data2, $data1);
 
         foreach my $key (keys %$data1) {
             if ($key =~ m/^-(.*)$/) {
-                my $merge_key = $1;
                 die "Key '$key' contains bogus data; expected an empty or true value" unless $data1->{$key}->as_boolean;
                 delete $data1->{$key};
-                delete $data2->{$merge_key} if $data2_is_hash;
-            } elsif ($key =~ m/^\+(.*)$/) {
-                my $merge_key = $1;
-                $data1->{$merge_key} = $data1->{$key};
-                delete $data1->{$key};
-
-                my $hash_array_merge_mode =
-                    is_hash($data1->{$merge_key}) &&
-                    is_hash($data2->{$merge_key});
-
-                if ($hash_array_merge_mode) {
-                    my $offset = get_next_auto_key($data2->{$merge_key});
-                    offset_keys($data1->{$merge_key}, $offset);
-                }
-
-                $data1->{$merge_key} = $self->merge_data($data1->{$merge_key}, $data2->{$merge_key}, $dir);
-                delete $data2->{$merge_key} if $data2_is_hash;
-
-                if ($hash_array_merge_mode) {
-                    reorder_numerically($data1->{$merge_key});
-                }
-            } else {
-                $data1->{$key} = $self->merge_data($data1->{$key}, undef, $dir);
+                delete $data2->{$1};
+                next;
             }
-        }
-        if ($data2_is_hash) {
-            foreach my $key (keys %$data2) {
-                if (exists $data2->{$key} && !exists $data1->{$key}) {
-                    $data1->{$key} = $data2->{$key};
+
+            # arrays are NOT merged by default; use `+key` will merge arrays
+            if (is_neat_array($data1->{$key})) {
+                if ($key =~ m/^\+(.*)$/) {
+                    if ((!exists $data2->{$1} || is_neat_array($data2->{$1}))) {
+                        $data1 = rename_ixhash_key($data1, $key, $1);
+                        $key = $1;
+                    }
+                } else {
+                    delete $data2->{$key};
                 }
             }
+
+            # hashes are merged by default; `+key { }` is the same as `key { }`
+            if (is_hash($data1->{$key}) && ($key =~ m/^\+(.*)$/)) {
+                $data1 = rename_ixhash_key($data1, $key, $1);
+                $key = $1;
+            }
+
+            if (is_hash($data1->{$key}) && is_hash($data2->{$key})) {
+                my $offset = get_next_auto_key($data2->{$key});
+                $data1->{$key} = offset_keys($data1->{$key}, $offset);
+            }
+            $data1->{$key} = $self->merge_data($data1->{$key}, $data2->{$key}, $dir);
         }
+
+        foreach my $key (keys %$data2) {
+            if (exists $data2->{$key} && !exists $data1->{$key}) {
+                $data1->{$key} = $data2->{$key};
+            }
+        }
+
+        $data1 = reorder_ixhash($data1, \@keys);
     } elsif (is_neat_array($data1) && is_neat_array($data2)) {
         unshift(@$data1, @$data2);
     }

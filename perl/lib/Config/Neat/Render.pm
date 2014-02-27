@@ -176,12 +176,13 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Render;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 use strict;
 
-use Config::Neat::Util qw(new_ixhash is_code is_hash is_array is_scalar is_neat_array
-                          is_simple_array hash_has_sequential_keys);
+use Config::Neat::Util qw(new_ixhash is_number is_code is_hash is_array is_scalar
+                          is_neat_array is_simple_array hash_has_only_sequential_keys
+                          hash_has_sequential_keys);
 use Tie::IxHash;
 
 #
@@ -366,7 +367,7 @@ sub render {
     }
 
     sub render_key_val {
-        my ($options, $key_length, $indent, $wasref, $array_mode, $key, $val) = @_;
+        my ($options, $key_length, $indent, $wasref, $array_mode, $sequential_keys, $key, $val) = @_;
 
         my $text = '';
         my $space_indent = (' ' x $indent);
@@ -400,7 +401,7 @@ sub render {
 
         } elsif (is_neat_array($val)) {
             map {
-                $text .= render_key_val($options, $key_length, $indent, $wasref, $array_mode, $key, $_);
+                $text .= render_key_val($options, $key_length, $indent, $wasref, $array_mode, $sequential_keys, $key, $_);
             } @$val;
 
         } else {
@@ -408,7 +409,7 @@ sub render {
 
             $text .= $space_indent;
 
-            if (!$array_mode) {
+            if (!$array_mode && !($sequential_keys && is_number($key))) {
                 $text .= $options->{brace_under} ? "$key\n$space_indent" : "$key ";
             }
 
@@ -428,6 +429,7 @@ sub render {
         my $text = '';
         my $key_length = 0;
         my $array_mode;
+        my $sequential_keys;
 
         if (is_array($node) || is_neat_array($node)) {
             if (is_simple_array($node)) {
@@ -439,7 +441,8 @@ sub render {
         }
 
         if (is_hash($node)) {
-            $array_mode = hash_has_sequential_keys($node);
+            $array_mode = hash_has_only_sequential_keys($node);
+            $sequential_keys = hash_has_sequential_keys($node);
             $key_length = $options->{align_all} ? $options->{global_key_length} : max_key_length($node, $options, $indent);
 
         } else {
@@ -459,7 +462,7 @@ sub render {
         }
 
         foreach my $key (@keys) {
-            $text .= render_key_val($options, $key_length, $indent, \$was, $array_mode, $key, $node->{$key});
+            $text .= render_key_val($options, $key_length, $indent, \$was, $array_mode, $sequential_keys, $key, $node->{$key});
         }
         return $text;
     }

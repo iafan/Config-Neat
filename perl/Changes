@@ -1,6 +1,33 @@
 Revision history for Config-Neat
 
+0.3     28 February 2014
+
+		- By default, hashes are now merged (no need to set '+'
+		  prefix for the merged key); arrays, on the contrary,
+		  are replaced by default, so '+' is needed to merge
+		  their values
+
+		- When merging nodes, the original order of the keys
+		  is preserved
+
+		- Support for hashes with mixed explicitly set and
+		  automatically generated indexed keys; hashes
+		  with sequential numbering can be cast to ARRAY
+		  automatically using Config::Neat::Schema
+
+        * Initial CPAN release *
+
 0.2     23 February 2014
-        Support multiple key declarations at the same level
-        (these will be converted to an array).
-        Initial CPAN release.
+
+        - Support multiple key declarations at the same level
+          (these will be converted to an array).
+
+        - Support installation via Module::Build
+
+
+...
+
+
+0.0     22 September 2012
+
+		* Code published on GitHub *

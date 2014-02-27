@@ -5,13 +5,13 @@ foo
 
 foo2
 {
-    bar2    baz2
     bar     baz
+    bar2    baz2
 }
 
 foo3
 {
-    bar3    baz3
-    bar2    baz2
     bar     baz
+    bar2    baz2
+    bar3    baz3
 }

@@ -14,7 +14,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Util;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 use strict;
 
@@ -32,11 +32,14 @@ our @EXPORT_OK = qw(
     is_neat_array
     is_scalar
     is_simple_array
+    hash_has_only_sequential_keys
     hash_has_sequential_keys
     get_next_auto_key
     offset_keys
-    get_keys_ordered
-    reorder_numerically
+    get_keys_in_order
+    reorder_ixhash_numerically
+    reorder_ixhash
+    rename_ixhash_key
     read_file
 );
 
@@ -102,15 +105,24 @@ sub is_simple_array {
     return $contains_scalar;
 }
 
-sub hash_has_sequential_keys {
+sub hash_has_only_sequential_keys {
     my $node = shift;
+    return hash_has_sequential_keys($node, 1);
+}
+
+sub hash_has_sequential_keys {
+    my ($node, $strict) = @_;
     die "Not a hash" unless is_hash($node);
 
     my $i = 0;
-    # sort keys numerically
-    foreach my $key (sort { $a <=> $b } keys %$node) {
-        return undef if ($key + 0 ne $key) or ($i++ != $key);
-    }
+    map {
+        if (is_number($_)) {
+            return undef if $_ != $i;
+            $i++;
+        } else {
+            return undef if $strict;
+        }
+    } keys %$node;
     return 1;
 }
 
@@ -130,64 +142,70 @@ sub get_next_auto_key {
     return $i + 1;
 }
 
-# supposed to be used against hash that matches the
-# `hash_has_sequential_keys() == true` criterion
 sub offset_keys {
     my ($node, $offset) = @_;
-    die "Not a hash" unless is_hash($node);
-    die "Offset is a negative number" if $offset < 0;
-    return if $offset == 0;
+    die "Not a Tie::IxHash" unless is_ixhash($node);
+    return $node if $offset == 0;
 
-    # sort keys numerically in the reverse order
-    my @a = sort {$b <=> $a} keys %$node;
+    my $result = new_ixhash;
 
     # remap keys
     map {
         if (is_number($_)) {
-            $node->{$_ + $offset} = $node->{$_};
-            delete $node->{$_};
+            $result->{$_ + $offset} = $node->{$_};
+        } else {
+            $result->{$_} = $node->{$_};
         }
-    } @a;
+    } keys %$node;
+
+    return $result;
 }
 
 # accepts an array of hasrefs
-sub get_keys_ordered {
-    my %result;
-    tie(%result, 'Tie::IxHash');
+sub get_keys_in_order {
+    my $result = new_ixhash;
 
     map {
         map {
-            $result{$_} = 1;
+            $result->{$_} = 1;
         } keys %$_;
     } @_;
 
-    return keys %result;
+    return keys %$result;
 }
 
-sub reorder_numerically {
+sub reorder_ixhash_numerically {
     my ($node) = @_;
     die "Not a Tie::IxHash" unless is_ixhash($node);
 
     # sort keys numerically
     my @a = sort {$a <=> $b} keys %$node;
 
-    reorder($node, \@a);
+    return reorder_ixhash($node, \@a);
 }
 
-sub reorder {
-    my ($node, $aref) = @_;
+sub reorder_ixhash {
+    my ($node, $keysref) = @_;
     die "Not a Tie::IxHash" unless is_ixhash($node);
 
-    # get values in the right order
-    my @values = map { $node->{$_} } @$aref;
+    my $result = new_ixhash;
+    map { $result->{$_} = $node->{$_} if exists $node->{$_} } @$keysref;
 
-    # clear all the keys
-    map { delete $node->{$_} } @$aref;
+    return $result;
+}
 
-    # re-add the keys in the proper order
-    for (my $i = 0; $i < scalar @$aref; $i++) {
-        $node->{$aref->[$i]} = $values[$i];
-    }
+sub rename_ixhash_key {
+    my ($node, $from, $to) = @_;
+    die "Not a Tie::IxHash" unless is_ixhash($node);
+    die "Can\'t rename key '$from' to '$to', because the target key already exists" if exists $node->{$to};
+
+    my $result = new_ixhash;
+    map {
+        my $key = $_ eq $from ? $to : $_;
+        $result->{$key} = $node->{$_};
+    } keys %$node;
+
+    return $result;
 }
 
 sub read_file {
