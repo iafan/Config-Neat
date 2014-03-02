@@ -1,5 +1,12 @@
 Revision history for Config-Neat
 
+0.4     02 March 2014
+
+		- A more correct schema-based automatic casting
+		  from HASH to ARRAY (+ additional test)
+
+		- Add File::Slurp to the list of build prerequisites
+
 0.3     28 February 2014
 
 		- By default, hashes are now merged (no need to set '+'

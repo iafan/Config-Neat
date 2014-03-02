@@ -14,7 +14,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Util;
 
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 use strict;
 
@@ -32,6 +32,7 @@ our @EXPORT_OK = qw(
     is_neat_array
     is_scalar
     is_simple_array
+    is_hash_of_hashes
     hash_has_only_sequential_keys
     hash_has_sequential_keys
     get_next_auto_key
@@ -103,6 +104,16 @@ sub is_simple_array {
         die "Mixing hashes with simple arrays/scalars within one node is not supported" if $contains_hash && $contains_scalar;
     }
     return $contains_scalar;
+}
+
+sub is_hash_of_hashes {
+    my $node = shift;
+    die "Not a hash" unless is_hash($node);
+
+    map {
+        return undef unless is_hash($node->{$_});
+    } keys %$node;
+    return 1;
 }
 
 sub hash_has_only_sequential_keys {

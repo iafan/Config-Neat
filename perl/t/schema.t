@@ -32,7 +32,7 @@ like($@, qr|^Node '/abc' is not defined in the schema |, '01.nconf validation sh
 
 _load_conf('02');
 eval { $s->validate($data) };
-like($@, qr|^'/foo/bar' is HASH, while it is expected to be ARRAY |, '02.nconf validation should fail because of "/foo/bar" node');
+like($@, qr|^Can't cast '/foo/bar' to ARRAY, since it should contain only HASH values |, '02.nconf validation should fail because of "/foo/bar" node');
 
 _load_conf('03');
 $s->validate($data);
@@ -84,6 +84,10 @@ ok(ref($data->{jobs}) eq 'ARRAY', '09.nconf: /jobs is now an array of objects');
 _load_conf('10');
 _validate_conf('10');
 ok(ref($data->{jobs}) eq 'ARRAY', '10.nconf: /jobs is now an array of objects');
+
+_load_conf('11');
+eval { $s->validate($data) };
+like($@, qr|^Can't cast '/foo/bar' to ARRAY, since it is a HASH containing non-sequential keys |, '11.nconf validation should fail because of "/foo/bar" node');
 
 done_testing();
 

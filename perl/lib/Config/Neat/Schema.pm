@@ -46,12 +46,12 @@ any arbitrary data structure and are not validated.
 
 package Config::Neat::Schema;
 
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 use strict;
 
 use Config::Neat::Inheritable;
-use Config::Neat::Util qw(hash_has_sequential_keys);
+use Config::Neat::Util qw(is_hash_of_hashes hash_has_sequential_keys);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Tie::IxHash;
@@ -145,10 +145,9 @@ sub validate_node {
     # see if automatic casting from HASH to ARRAY is possible
     my $cast_to_array;
     if ($schema_type eq 'ARRAY' and $data_type eq 'HASH') {
-        $cast_to_array = hash_has_sequential_keys($data_node);
-        if (!$cast_to_array) {
-            die "Can't cast '$pathstr' to ARRAY, since it is a HASH containing non-sequential keys";
-        }
+        die "Can't cast '$pathstr' to ARRAY, since it is a HASH containing non-sequential keys" unless hash_has_sequential_keys($data_node);
+        die "Can't cast '$pathstr' to ARRAY, since it should contain only HASH values" unless is_hash_of_hashes($data_node);
+        $cast_to_array = 1;
     }
 
     if ($schema_type ne $data_type && !$cast_to_array) {
