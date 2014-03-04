@@ -28,11 +28,6 @@ ok($c, '$cfg is defined');
 my $r = Config::Neat::Render->new();
 ok($r, '$r is defined');
 
-eval {
-    $c->parse_file(catfile(dirname(rel2abs($0)), '../../sample/readme.nconf'));
-};
-like($@, qr/^Can't open \[C:\\path\\to\\file\]: No such file or directory/, 'readme.nconf parsing should fail because of unresolved inheritance path');
-
 my @nconf_files;
 
 find(sub {
@@ -58,8 +53,7 @@ foreach my $test_filename (@nconf_files) {
                 ok($@, '$@ is defined');
 
                 $reference_filename =~ s|\.nconf$|.nconf_parse_file_error|;
-                $text1 = $@;
-                $text1 =~ s/ at \S+? line \d+\.$//;
+                $text1 = rectify_error_string($@);
             } else {
                 ok($data1, '$data1 is defined');
 
@@ -79,8 +73,7 @@ foreach my $test_filename (@nconf_files) {
                 ok($@, '$@ is defined');
 
                 $reference_filename =~ s|\.nconf$|.nconf_parse_file_error|;
-                $error_text = $text1 = $@;
-                $text1 =~ s/ at \S+? line \d+\.$//;
+                $error_text = $text1 = rectify_error_string($@);
             } else {
                 ok($data1, '$data1 is defined');
 
@@ -106,3 +99,10 @@ foreach my $test_filename (@nconf_files) {
 }
 
 done_testing();
+
+sub rectify_error_string {
+    my $s = shift;
+    $s =~ s/ at \S+? line \d+\.$//;
+    $s =~ s/(at `\@inherit ).+?((\d+\.nconf)?#)/$1<...>$2/;
+    return $s;
+}

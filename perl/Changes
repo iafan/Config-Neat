@@ -1,5 +1,13 @@
 Revision history for Config-Neat
 
+0.5     04 March 2014
+
+		- Report a proper error when trying to render objects
+		  of unsupported types
+
+		- Tests no longer have any hardcoded paths in the
+		  reference data
+
 0.4     02 March 2014
 
 		- A more correct schema-based automatic casting

@@ -14,7 +14,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Util;
 
-our $VERSION = '0.4';
+our $VERSION = '0.5';
 
 use strict;
 
@@ -90,7 +90,7 @@ sub is_simple_array {
     my $node = shift;
 
     return 1 if is_scalar($node);
-    return undef if is_hash($node);
+    return undef unless is_array($node) || is_neat_array($node);
 
     my $contains_hash = undef;
     my $contains_scalar = undef;

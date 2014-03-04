@@ -176,7 +176,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Render;
 
-our $VERSION = '0.4';
+our $VERSION = '0.5';
 
 use strict;
 
