@@ -1,34 +1,38 @@
 Revision history for Config-Neat
 
+For the upcoming release
+
+        - Add the minimal version requirement for Test::More (0.94)
+
 0.5     04 March 2014
 
-		- Report a proper error when trying to render objects
-		  of unsupported types
+        - Report a proper error when trying to render objects
+          of unsupported types
 
-		- Tests no longer have any hardcoded paths in the
-		  reference data
+        - Tests no longer have any hardcoded paths in the
+          reference data
 
 0.4     02 March 2014
 
-		- A more correct schema-based automatic casting
-		  from HASH to ARRAY (+ additional test)
+        - A more correct schema-based automatic casting
+          from HASH to ARRAY (+ additional test)
 
-		- Add File::Slurp to the list of build prerequisites
+        - Add File::Slurp to the list of build prerequisites
 
 0.3     28 February 2014
 
-		- By default, hashes are now merged (no need to set '+'
-		  prefix for the merged key); arrays, on the contrary,
-		  are replaced by default, so '+' is needed to merge
-		  their values
+        - By default, hashes are now merged (no need to set '+'
+          prefix for the merged key); arrays, on the contrary,
+          are replaced by default, so '+' is needed to merge
+          their values
 
-		- When merging nodes, the original order of the keys
-		  is preserved
+        - When merging nodes, the original order of the keys
+          is preserved
 
-		- Support for hashes with mixed explicitly set and
-		  automatically generated indexed keys; hashes
-		  with sequential numbering can be cast to ARRAY
-		  automatically using Config::Neat::Schema
+        - Support for hashes with mixed explicitly set and
+          automatically generated indexed keys; hashes
+          with sequential numbering can be cast to ARRAY
+          automatically using Config::Neat::Schema
 
         * Initial CPAN release *
 
@@ -44,4 +48,4 @@ Revision history for Config-Neat
 
 0.0     22 September 2012
 
-		* Code published on GitHub *
+        * Code published on GitHub *
