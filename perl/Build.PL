@@ -14,7 +14,7 @@ my $builder = Module::Build->new(
     },
     build_requires      => {
         'File::Slurp'   => 0,
-        'Test::More'    => 0,
+        'Test::More'    => '0.94',
     },
     requires => {
         'Tie::IxHash'   => '1.22',

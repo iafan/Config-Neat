@@ -13,7 +13,7 @@ $| = 1; # disable output buffering;
 use File::Find;
 use File::Slurp;
 use Getopt::Long;
-use Test::More;
+use Test::More 0.94;
 
 my ($init);
 

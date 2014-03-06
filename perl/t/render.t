@@ -11,7 +11,7 @@ BEGIN {
 $| = 1; # disable output buffering;
 
 use File::Slurp;
-use Test::More;
+use Test::More 0.94;
 
 use_ok('Config::Neat');
 use_ok('Config::Neat::Render');
