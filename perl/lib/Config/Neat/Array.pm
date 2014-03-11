@@ -14,7 +14,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Array;
 
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 
 use strict;
 

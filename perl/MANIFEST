@@ -44,6 +44,7 @@ t/data/inherit/reference/29.nconf_parse_file_error
 t/data/inherit/reference/30.nconf_parse_file_error
 t/data/inherit/reference/31.nconf
 t/data/inherit/reference/32.nconf
+t/data/inherit/reference/33.nconf
 t/data/inherit/tests/01.nconf
 t/data/inherit/tests/02.nconf
 t/data/inherit/tests/03.nconf
@@ -76,6 +77,7 @@ t/data/inherit/tests/29.nconf
 t/data/inherit/tests/30.nconf
 t/data/inherit/tests/31.nconf
 t/data/inherit/tests/32.nconf
+t/data/inherit/tests/33.nconf
 t/data/parse/01.nconf
 t/data/render/output.nconf
 t/data/schema/01.nconf

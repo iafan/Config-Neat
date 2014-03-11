@@ -2,7 +2,12 @@ Revision history for Config-Neat
 
 For the upcoming release
 
+0.6     12 March 2014
+
         - Add the minimal version requirement for Test::More (0.94)
+
+        - Must clone node before putting it into the cache;
+          added test for multiple node reuse
 
 0.5     04 March 2014
 
