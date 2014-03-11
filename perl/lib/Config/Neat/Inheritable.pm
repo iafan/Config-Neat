@@ -186,17 +186,16 @@ sub expand_data {
                     if ($filename) {
                         $merge_dir = dirname($fullpath);
 
-                        if (exists $self->{cache}->{$fullpath}) {
-                            $merge_cfg = $self->{cache}->{$fullpath};
-                        } else {
-                            $merge_cfg = $self->{cache}->{$fullpath} = $self->_parse_file($fullpath);
+                        if (!exists $self->{cache}->{$fullpath}) {
+                            $self->{cache}->{$fullpath} = $self->_parse_file($fullpath);
                         }
+                        $merge_cfg = _clone($self->{cache}->{$fullpath});
                     } else {
                         $merge_cfg = _clone($self->{orig_data});
                     }
                     $merge_node = $self->select_subnode($merge_cfg, $selector, $dir);
                     $merge_node = $self->expand_data($merge_node, $merge_dir);
-                    $self->{cache}->{$from} = $merge_node;
+                    $self->{cache}->{$from} = _clone($merge_node);
                 }
 
                 $intermediate = $self->merge_data($merge_node, $intermediate, $dir);
