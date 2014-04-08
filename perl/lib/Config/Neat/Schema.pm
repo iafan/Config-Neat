@@ -51,7 +51,7 @@ our $VERSION = '0.6';
 use strict;
 
 use Config::Neat::Inheritable;
-use Config::Neat::Util qw(is_hash_of_hashes hash_has_sequential_keys);
+use Config::Neat::Util qw(is_hash is_hash_of_hashes hash_has_sequential_keys);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Tie::IxHash;
@@ -139,14 +139,13 @@ sub validate_node {
         $data_type = $schema_type;
     }
 
-    # skip (don't validate DATA nodes)
+    # skip (don't validate) DATA nodes
     return 1 if ($schema_type eq 'DATA');
 
     # see if automatic casting from HASH to ARRAY is possible
     my $cast_to_array;
     if ($schema_type eq 'ARRAY' and $data_type eq 'HASH') {
         die "Can't cast '$pathstr' to ARRAY, since it is a HASH containing non-sequential keys" unless hash_has_sequential_keys($data_node);
-        die "Can't cast '$pathstr' to ARRAY, since it should contain only HASH values" unless is_hash_of_hashes($data_node);
         $cast_to_array = 1;
     }
 
@@ -156,12 +155,13 @@ sub validate_node {
 
     if ($data_type eq 'HASH') {
         foreach my $key (keys %$data_node) {
+            my @a = @$path;
+            push @a, $key;
             if ($key eq '') {
                 # TODO: check if the default parameter for the hash is allowed, and if it is a string or array
             } else {
+                die "Can't validate '/", join('/', @a), "', because schema contains no definition for it" if !is_hash($schema_node);
                 my $schema_subnode = $schema_node->{$key} || $schema_node->{'*'};
-                my @a = @$path;
-                push @a, $key;
                 $self->validate_node($schema_subnode, $data_node->{$key}, $data_node, $key, \@a);
             }
         }

@@ -40,3 +40,16 @@ options
 {
     *           BOOLEAN
 }
+
+array_of_arrays ARRAY
+{
+    *           ARRAY
+}
+
+array_of_hashes ARRAY
+{
+    *           HASH
+    {
+        *       DATA
+    }
+}
