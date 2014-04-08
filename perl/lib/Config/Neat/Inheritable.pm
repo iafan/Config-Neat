@@ -66,8 +66,8 @@ our $VERSION = '0.6';
 use strict;
 
 use Config::Neat;
-use Config::Neat::Util qw(new_ixhash is_hash is_neat_array get_next_auto_key offset_keys
-                          get_keys_in_order reorder_ixhash rename_ixhash_key read_file);
+use Config::Neat::Util qw(new_ixhash is_hash is_ixhash to_ixhash is_neat_array get_next_auto_key
+                          offset_keys get_keys_in_order reorder_ixhash rename_ixhash_key read_file);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Storable qw(dclone);
@@ -283,6 +283,7 @@ sub merge_data {
             }
         }
 
+        $data1 = to_ixhash($data1) unless is_ixhash($data1);
         $data1 = reorder_ixhash($data1, \@keys);
     } elsif (is_neat_array($data1) && is_neat_array($data2)) {
         unshift(@$data1, @$data2);

@@ -24,6 +24,7 @@ our @ISA = qw(Exporter);
 
 our @EXPORT_OK = qw(
     new_ixhash
+    to_ixhash
     is_number
     is_code
     is_hash
@@ -47,6 +48,14 @@ our @EXPORT_OK = qw(
 sub new_ixhash {
     my $new = {};
     tie(%$new, 'Tie::IxHash');
+    return $new;
+}
+
+sub to_ixhash {
+    my $node = shift;
+    die "Not a regular hash" unless is_hash($node) && !is_ixhash($node);
+    my $new = new_ixhash;
+    map { $new->{$_} = $node->{$_} } keys %$node;
     return $new;
 }
 

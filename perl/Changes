@@ -2,6 +2,9 @@ Revision history for Config-Neat
 
 For the upcoming release
 
+        - Automatically convert merged node to an IxHash
+          if necessary
+
 0.6     12 March 2014
 
         - Add the minimal version requirement for Test::More (0.94)
