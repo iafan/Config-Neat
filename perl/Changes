@@ -5,6 +5,8 @@ For the upcoming release
         - Automatically convert merged node to an IxHash
           if necessary
 
+        - Allow casting any hash to an array
+
 0.6     12 March 2014
 
         - Add the minimal version requirement for Test::More (0.94)
