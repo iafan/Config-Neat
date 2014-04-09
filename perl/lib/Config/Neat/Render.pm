@@ -264,13 +264,19 @@ sub render {
         my $len = 0;
         if (is_hash($node)) {
             foreach my $key (keys %$node) {
-                my $key_len = $indent + length($key);
-                $len = $key_len if $key_len > $len;
-
                 my $subnode = $node->{$key};
 
                 if (is_array($subnode) && !is_simple_array($subnode)) {
                     $subnode = convert_array_to_hash($subnode);
+                }
+
+                my $key_len;
+                if (is_hash($subnode) && !exists $subnode->{''}) {
+                    # do not take into account the length of a hash key
+                    # if it doesn't contain default values (which we want to align as well)
+                } else {
+                    $key_len = $indent + length($key);
+                    $len = $key_len if $key_len > $len;
                 }
 
                 if ($recursive && (is_hash($subnode) || is_neat_array($subnode) || is_array($subnode))) {
@@ -407,10 +413,20 @@ sub render {
         } else {
             $text .= "\n" if $$wasref and $options->{separate_blocks};
 
-            $text .= $space_indent;
+            if (is_hash($val) && exists $val->{''}) {
+                my $default_value = $val->{''};
+                if (!is_scalar($default_value) && !is_simple_array($default_value)) {
+                    die "Only scalar or simple array can be rendered as a default node value";
+                }
+                $$wasref = $PARAM;
+                $text .= render_key_val($options, $key_length, $indent, $wasref, undef, $sequential_keys, $key, $default_value);
+                $text .= $space_indent;
+            } else {
+                $text .= $space_indent;
 
-            if (!$array_mode && !($sequential_keys && is_number($key))) {
-                $text .= $options->{brace_under} ? "$key\n$space_indent" : "$key ";
+                if (!$array_mode && !($sequential_keys && is_number($key))) {
+                    $text .= $options->{brace_under} ? "$key\n$space_indent" : "$key ";
+                }
             }
 
             $text .= "{\n" .
@@ -462,7 +478,10 @@ sub render {
         }
 
         foreach my $key (@keys) {
-            $text .= render_key_val($options, $key_length, $indent, \$was, $array_mode, $sequential_keys, $key, $node->{$key});
+            # default node values are rendered separately
+            if ($key ne '') {
+                $text .= render_key_val($options, $key_length, $indent, \$was, $array_mode, $sequential_keys, $key, $node->{$key});
+            }
         }
         return $text;
     }

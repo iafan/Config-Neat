@@ -7,6 +7,11 @@ For the upcoming release
 
         - Allow casting any hash to an array
 
+        - Support rendering default hash values
+
+        - Do not count the key length for the hash keys
+          that don't have values
+
 0.6     12 March 2014
 
         - Add the minimal version requirement for Test::More (0.94)
