@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>comment</key>
 	<string>Config::Neat Syntax</string>
 	<key>fileTypes</key>
 	<array>
-		<string>nconf.inc</string>
 		<string>nconf</string>
-		<string>neat.inc</string>
 		<string>neat</string>
 	</array>
 	<key>foldingStartMarker</key>
@@ -155,6 +153,20 @@
 			<string>Different coloring for '+whatever' key names</string>
 			<key>match</key>
 			<string>(?:^|{)(?:\s*)(\+)([^\s\/#{}`]+)(#[^\s\/#{}]+)?</string>
+		</dict>
+		<dict>
+			<key>captures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>constant.other.placeholder</string>
+				</dict>
+			</dict>
+			<key>comment</key>
+			<string>Different coloring for ':whatever' key names</string>
+			<key>match</key>
+			<string>(?:^|{)(?:\s*)(\:)([^\s\/#{}`]+)(#[^\s\/#{}]+)?</string>
 		</dict>
 		<dict>
 			<key>captures</key>
