@@ -9,7 +9,8 @@ Config::Neat Highlighter for Sublime Text
 3. Copy the `Config-Neat` subfolder there.
 
 Sublime Text will pick the new highligher automatically, and whenever you
-open a file with `.nconf` or `.neat` extension, this highligher will be activated
-(but you can always select this syntax for any arbitrary file).
+open a file with `.nconf`,  `.nconf.inc`, `.neat`, or `.neat.inc` extension,
+this highligher will be activated (but you can always select this
+syntax for any arbitrary file).
 
 The same syntaxt highligher should also work with [TextMate](http://macromates.com/).
