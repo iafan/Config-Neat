@@ -1,6 +1,6 @@
 Revision history for Config-Neat
 
-For the upcoming release
+0.7     11 April 2014
 
         - Automatically convert merged node to an IxHash
           if necessary

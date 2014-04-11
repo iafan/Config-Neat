@@ -71,7 +71,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat;
 
-our $VERSION = '0.6';
+our $VERSION = '0.7';
 
 use strict;
 
