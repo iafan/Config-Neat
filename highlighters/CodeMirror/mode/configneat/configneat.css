@@ -1,7 +1,11 @@
-.cm-s-default span.cm-keyword  {color: #08c; }
-.cm-s-default span.cm-variable {color: #000; }
-.cm-s-default span.cm-bracket  {color: #999; }
-.cm-s-default span.cm-quote    {color: #090; }
-.cm-s-default span.cm-comment  {color: #999; }
-.cm-s-default span.cm-string-2 {color: #c0f; }
-.cm-s-default span.cm-builtin  {color: #86f; }
+.cm-s-default span.cm-keyword     {color: #08c; }
+.cm-s-default span.cm-key-label   {color: #f08; font-style: italic; }
+.cm-s-default span.cm-key-merge   {color: #0c0; }
+.cm-s-default span.cm-key-delete  {color: #c00; }
+.cm-s-default span.cm-variable    {color: #000; }
+.cm-s-default span.cm-placeholder {color: #f80; font-style: italic; }
+.cm-s-default span.cm-bracket     {color: #999; }
+.cm-s-default span.cm-quote       {color: #090; }
+.cm-s-default span.cm-comment     {color: #999; }
+.cm-s-default span.cm-string-2    {color: #c0f; }
+.cm-s-default span.cm-builtin     {color: #86f; }

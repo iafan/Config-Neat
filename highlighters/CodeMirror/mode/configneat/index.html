@@ -45,15 +45,27 @@ server
 
         www.domain.com
         {
-            root      /var/www/domain
+            root            /var/www/domain
             ...
         }
 
         www.otherdomain.com
         {
-            root      /var/www/otherdomain
+            root            /var/www/otherdomain
             ...
         }
+    }
+
+    +merge_key
+    {
+        test                %ENV:SOME_VAR% `%ENV:SOME_VAR%`
+    }
+
+    -remove_key
+
+    :label
+    {
+        ...
     }
 }
 </textarea></form>

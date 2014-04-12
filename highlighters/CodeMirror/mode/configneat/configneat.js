@@ -20,6 +20,13 @@ CodeMirror.defineMode("configneat", function() {
         }
       }
 
+      if (ch == "%" && !b.linecomment && !b.blockcomment) {
+        b.placeholder = !b.placeholder;
+        return "placeholder";
+      }
+
+      if (b.placeholder) return "placeholder";
+
       if (ch == "`" && !b.linecomment && !b.blockcomment) {
         b.raw = !b.raw;
         return "quote";
@@ -54,9 +61,11 @@ CodeMirror.defineMode("configneat", function() {
       if (ch == "{") {
         state.blocks.push({
           key: true,
+          key_start: undefined,
           linestart: true,
           paramstart: undefined,
           raw: false,
+          placeholder: false,
           linecomment: false,
           blockcomment: false,
           was_space: false
@@ -74,6 +83,7 @@ CodeMirror.defineMode("configneat", function() {
       }
 
       if ((ch == " ") && !b.linestart) {
+        b.key_start = undefined;
         if (b.key) {
           b.key = false;
         }
@@ -86,6 +96,7 @@ CodeMirror.defineMode("configneat", function() {
         b.key = true;
         b.paramstart = undefined;
         b.linestart = false;
+        b.key_start = b.ch = ch;
       }
 
       if ((ch != " ") && !b.key && !b.paramstart) {
@@ -107,7 +118,12 @@ CodeMirror.defineMode("configneat", function() {
         b.paramstart = stream.pos;
       }
 
-      if (b.key) return "keyword";
+      if (b.key) {
+        if (b.key_start == ":") return "key-label";
+        if (b.key_start == "+") return "key-merge";
+        if (b.key_start == "-") return "key-delete";
+        return "keyword";
+      }
 
       return "variable";
     },
@@ -117,9 +133,11 @@ CodeMirror.defineMode("configneat", function() {
         blocks: [
           {
             key: true,
+            key_start: undefined,
             linestart: true,
             paramstart: undefined,
             raw: false,
+            placeholder: false,
             linecomment: false,
             blockcomment: false,
             was_space: false
