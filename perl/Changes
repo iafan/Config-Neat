@@ -1,5 +1,10 @@
 Revision history for Config-Neat
 
+0.8     10 May 2014
+
+        - Fix inheriting the same local paths from different files
+          (save the file name as a part of the cache item key)
+
 0.7     11 April 2014
 
         - Automatically convert merged node to an IxHash

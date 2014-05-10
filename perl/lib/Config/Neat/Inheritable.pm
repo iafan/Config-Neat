@@ -61,7 +61,7 @@ Multiple inheritance is supported; use '.' do denote the the current file:
 
 package Config::Neat::Inheritable;
 
-our $VERSION = '0.7';
+our $VERSION = '0.8';
 
 use strict;
 
