@@ -12,6 +12,8 @@ lib/Config/Neat/Util.pm
 t/data/inherit/inc/01.nconf
 t/data/inherit/inc/02.nconf
 t/data/inherit/inc/03.nconf
+t/data/inherit/inc/04.nconf
+t/data/inherit/inc/05.nconf
 t/data/inherit/reference/01.nconf
 t/data/inherit/reference/02.nconf
 t/data/inherit/reference/03.nconf
@@ -49,6 +51,8 @@ t/data/inherit/reference/34.nconf
 t/data/inherit/reference/35.nconf
 t/data/inherit/reference/36.nconf
 t/data/inherit/reference/37.nconf
+t/data/inherit/reference/38.nconf
+t/data/inherit/reference/39.nconf
 t/data/inherit/tests/01.nconf
 t/data/inherit/tests/02.nconf
 t/data/inherit/tests/03.nconf
@@ -86,6 +90,8 @@ t/data/inherit/tests/34.nconf
 t/data/inherit/tests/35.nconf
 t/data/inherit/tests/36.nconf
 t/data/inherit/tests/37.nconf
+t/data/inherit/tests/38.nconf
+t/data/inherit/tests/39.nconf
 t/data/parse/01.nconf
 t/data/render/output.nconf
 t/data/schema/01.nconf

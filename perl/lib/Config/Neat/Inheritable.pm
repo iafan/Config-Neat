@@ -100,19 +100,19 @@ sub parse_file {
 # Given a string representation of the config, returns a parsed tree
 # with expanded '@inherit' blocks
 sub parse {
-    my ($self, $nconf, $dir) = @_;
-    return $self->_parse($nconf, $dir, 1); # init
+    my ($self, $nconf, $filename) = @_;
+    return $self->_parse($nconf, $filename, 1); # init
 }
 
 sub _parse_file {
     my ($self, $filename, $init) = @_;
 
-    my $dir = dirname(rel2abs($filename));
-    return $self->_parse(read_file($filename, $self->{binmode}), $dir, $init);
+    $filename = rel2abs($filename);
+    return $self->_parse(read_file($filename, $self->{binmode}), $filename, $init);
 }
 
 sub _parse {
-    my ($self, $nconf, $dir, $init) = @_;
+    my ($self, $nconf, $filename, $init) = @_;
 
     if ($init) {
         $self->{cache} = {};
@@ -120,23 +120,29 @@ sub _parse {
         $self->{include_stack} = [];
     }
 
-    $dir = dirname(rel2abs($0)) unless $dir;
+    my $dir = dirname(rel2abs($filename));
 
     # we need to preserve $self->{orig_data} and then restore it, so that
     # we will always have the current context file data for in-file @inherit rules
-    push @{$self->{saved_context}}, $self->{orig_data};
+    push @{$self->{saved_context}}, {
+        orig_data => $self->{orig_data},
+        fullpath => $self->{fullpath}
+    };
 
     # parse the file
     my $data = $self->{cfg}->parse($nconf);
 
     # preserve the data in the current context
     $self->{orig_data} = _clone($data);
+    $self->{fullpath} = rel2abs($filename);
 
     # process @inherit rules
     $data = $self->expand_data($data, $dir);
 
     # restore the context
-    $self->{orig_data} = pop @{$self->{saved_context}};
+    my $context = pop @{$self->{saved_context}};
+    $self->{orig_data} = $context->{orig_data};
+    $self->{fullpath} = $context->{fullpath};
 
     return $data;
 }
@@ -166,8 +172,10 @@ sub expand_data {
                 die "Neither filename nor selector are specified" unless $filename or $selector;
 
                 # normalize path and selector
-                my $fullpath = rel2abs($filename, $dir); # make path absolute based on current context dir
+                my $fullpath = $filename eq '' ? $self->{fullpath} : rel2abs($filename, $dir); # make path absolute based on current context dir
                 $selector =~ s/^\///; # remove leading slash, if any
+
+                $from = $fullpath.'#'.$selector;
 
                 # make sure we don't have any infinite loops
                 my $key = $fullpath.'#'.$selector;
