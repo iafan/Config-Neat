@@ -4,6 +4,7 @@ Revision history for Config-Neat
 
         - Fix inheriting the same local paths from different files
           (save the file name as a part of the cache item key)
+        - Implemented proper cascaded inheritance
 
 0.7     11 April 2014
 

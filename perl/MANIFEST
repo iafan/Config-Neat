@@ -53,6 +53,7 @@ t/data/inherit/reference/36.nconf
 t/data/inherit/reference/37.nconf
 t/data/inherit/reference/38.nconf
 t/data/inherit/reference/39.nconf
+t/data/inherit/reference/40.nconf
 t/data/inherit/tests/01.nconf
 t/data/inherit/tests/02.nconf
 t/data/inherit/tests/03.nconf
@@ -92,6 +93,7 @@ t/data/inherit/tests/36.nconf
 t/data/inherit/tests/37.nconf
 t/data/inherit/tests/38.nconf
 t/data/inherit/tests/39.nconf
+t/data/inherit/tests/40.nconf
 t/data/parse/01.nconf
 t/data/render/output.nconf
 t/data/schema/01.nconf

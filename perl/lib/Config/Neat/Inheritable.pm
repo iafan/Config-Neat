@@ -87,57 +87,58 @@ sub new {
     return $self;
 }
 
-# Given file name, will read this file in the specified mode (defaults to UTF-8), parse it
-# and expand '@inherit' blocks
+sub init {
+    my ($self) = @_;
+
+    $self->{cache} = {};
+    $self->{saved_context} = [];
+    $self->{include_stack} = [];
+}
+
+# Given a file name, will read this file in the specified mode (UTF-8 by default),
+# parse it and expand '@inherit' blocks
 sub parse_file {
     my ($self, $filename, $binmode) = @_;
 
+    $self->init;
     $self->{binmode} = $binmode;
 
-    return $self->_parse_file($filename, 1); # init
+    return $self->_parse_file($filename);
 }
 
 # Given a string representation of the config, returns a parsed tree
 # with expanded '@inherit' blocks
 sub parse {
-    my ($self, $nconf, $filename) = @_;
-    return $self->_parse($nconf, $filename, 1); # init
+    my ($self, $nconf_text, $filename) = @_;
+    $self->init;
+    return $self->_parse($nconf_text, $filename);
 }
 
 sub _parse_file {
-    my ($self, $filename, $init) = @_;
+    my ($self, $filename) = @_;
 
     $filename = rel2abs($filename);
-    return $self->_parse(read_file($filename, $self->{binmode}), $filename, $init);
+    return $self->_parse(read_file($filename, $self->{binmode}), $filename);
 }
 
 sub _parse {
-    my ($self, $nconf, $filename, $init) = @_;
+    my ($self, $nconf_text, $filename) = @_;
 
-    if ($init) {
-        $self->{cache} = {};
-        $self->{saved_context} = [];
-        $self->{include_stack} = [];
-    }
-
-    my $dir = dirname(rel2abs($filename));
-
-    # we need to preserve $self->{orig_data} and then restore it, so that
-    # we will always have the current context file data for in-file @inherit rules
+    # preserve current context
     push @{$self->{saved_context}}, {
         orig_data => $self->{orig_data},
         fullpath => $self->{fullpath}
     };
 
     # parse the file
-    my $data = $self->{cfg}->parse($nconf);
+    my $data = $self->{cfg}->parse($nconf_text);
 
-    # preserve the data in the current context
+    # generate the local context for expand_data()
     $self->{orig_data} = _clone($data);
     $self->{fullpath} = rel2abs($filename);
 
     # process @inherit rules
-    $data = $self->expand_data($data, $dir);
+    $data = $self->expand_data($data, $data, dirname($self->{fullpath}));
 
     # restore the context
     my $context = pop @{$self->{saved_context}};
@@ -147,20 +148,33 @@ sub _parse {
     return $data;
 }
 
-sub expand_data {
-    my ($self, $node, $dir) = @_;
-
-    if (ref($node) eq 'HASH') {
-        # expand child nodes
+sub find_next_node_to_expand {
+    my ($self, $node) = @_;
+    if (is_hash($node)) {
         map {
-            $node->{$_} = $self->expand_data($node->{$_}, $dir);
+            my ($subnode, $key) = $self->find_next_node_to_expand($node->{$_});
+            return ($subnode, $key) if defined $subnode;
+            return ($node, $_) if is_hash($node->{$_}) && exists $node->{$_}->{'@inherit'};
         } keys %$node;
+    }
+    return undef;
+}
+
+sub expand_data {
+    my ($self, $base_node, $node, $dir) = @_;
+    if (is_hash($node)) {
+
+        # expand child nodes
+        while (1) {
+            my ($subnode, $key) = $self->find_next_node_to_expand($node);
+            last unless $subnode;
+            $subnode->{$key} = $self->expand_data($base_node, $subnode->{$key}, $dir);
+        }
 
         if (exists $node->{'@inherit'}) {
             die "The value of '\@inherit' must be a string or array" unless ref($node->{'@inherit'}) eq 'Config::Neat::Array';
 
             my @a = @{$node->{'@inherit'}};
-            delete $node->{'@inherit'};
 
             my $intermediate = new_ixhash;
 
@@ -178,12 +192,11 @@ sub expand_data {
                 $from = $fullpath.'#'.$selector;
 
                 # make sure we don't have any infinite loops
-                my $key = $fullpath.'#'.$selector;
                 map {
-                    die "Infinite loop detected at `\@inherit $key`" if $key eq $_;
+                    die "Infinite loop detected at `\@inherit $from`" if $from eq $_;
                 } @{$self->{include_stack}};
 
-                push @{$self->{include_stack}}, $key;
+                push @{$self->{include_stack}}, $from;
 
                 my $merge_node;
                 if (exists $self->{cache}->{$from}) {
@@ -199,16 +212,19 @@ sub expand_data {
                         }
                         $merge_cfg = _clone($self->{cache}->{$fullpath});
                     } else {
-                        $merge_cfg = _clone($self->{orig_data});
+                        $merge_cfg = _clone($base_node);
                     }
+
                     $merge_node = $self->select_subnode($merge_cfg, $selector, $dir);
-                    $merge_node = $self->expand_data($merge_node, $merge_dir);
+                    $merge_node = $self->expand_data($base_node, $merge_node, $merge_dir);
                     $self->{cache}->{$from} = _clone($merge_node);
                 }
 
                 $intermediate = $self->merge_data($merge_node, $intermediate, $dir);
                 pop @{$self->{include_stack}};
             }
+
+            delete $node->{'@inherit'};
 
             $node = $self->merge_data($node, $intermediate, $dir);
         }
@@ -230,7 +246,7 @@ sub select_subnode {
     my $result = $node;
     foreach (@a) {
         next if ($_ eq '');
-        if (ref($result) eq 'HASH' and exists $result->{$_}) {
+        if (is_hash($result) && exists $result->{$_}) {
             $result = $result->{$_};
         } else {
             die "Can't find key '$_' in node (selector: '$selector')";
