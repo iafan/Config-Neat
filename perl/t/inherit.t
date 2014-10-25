@@ -83,7 +83,7 @@ foreach my $test_filename (@nconf_files) {
 
             ok(-f $reference_filename, "$reference_filename reference file should exist");
             if (-f $reference_filename) {
-                my $reference_text = read_file($reference_filename, {binmode => ':utf8'});
+                my $reference_text = read_file($reference_filename, binmode => ':utf8');
                 is($text1, $reference_text, 'Text should be equal to reference file contents: '.$reference_filename);
             } else {
                 if ($error_text) {

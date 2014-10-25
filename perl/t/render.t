@@ -90,7 +90,7 @@ ok($text2, '$text2 is defined');
 
 is($text1, $text2, 'Text from two passes should be the same');
 
-my $reference_text = read_file(catfile(dirname(rel2abs($0)), 'data/render/output.nconf'), {binmode => ':utf8'});
+my $reference_text = read_file(catfile(dirname(rel2abs($0)), 'data/render/output.nconf'), binmode => ':utf8');
 is($text1, $reference_text, 'Text should be equal to reference file contents');
 
 done_testing();
