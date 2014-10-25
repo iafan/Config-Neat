@@ -108,6 +108,8 @@ t/data/schema/09.nconf
 t/data/schema/10.nconf
 t/data/schema/11.nconf
 t/data/schema/12.nconf
+t/data/schema/13.nconf
+t/data/schema/14.nconf
 t/data/schema/schema.nconf
 t/inherit.t
 t/parse.t
