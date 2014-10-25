@@ -1,5 +1,9 @@
 Revision history for Config-Neat
 
+1.101   26 Oct 2014
+
+        - Bugfix: store 'converted to array' flags in a context-aware stack
+
 1.1     26 Oct 2014
 
         - Fixed and simplified parsing for repeating nodes

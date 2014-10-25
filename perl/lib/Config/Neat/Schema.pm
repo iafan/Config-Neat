@@ -46,7 +46,7 @@ any arbitrary data structure and are not validated.
 
 package Config::Neat::Schema;
 
-our $VERSION = '1.1';
+our $VERSION = '1.101';
 
 use strict;
 
