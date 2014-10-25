@@ -176,12 +176,12 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Render;
 
-our $VERSION = '0.9';
+our $VERSION = '1.0';
 
 use strict;
 
 use Config::Neat::Util qw(new_ixhash is_number is_code is_hash is_array is_scalar
-                          is_neat_array is_simple_array hash_has_only_sequential_keys
+                          is_neat_array is_homogenous_simple_array hash_has_only_sequential_keys
                           hash_has_sequential_keys);
 use Tie::IxHash;
 
@@ -266,7 +266,7 @@ sub render {
             foreach my $key (keys %$node) {
                 my $subnode = $node->{$key};
 
-                if (is_array($subnode) && !is_simple_array($subnode)) {
+                if (is_array($subnode) && !is_homogenous_simple_array($subnode)) {
                     $subnode = convert_array_to_hash($subnode);
                 }
 
@@ -286,7 +286,7 @@ sub render {
                     $len = $key_len if $key_len > $len;
                 }
             }
-        } elsif ((is_neat_array($node) || is_array($node)) && !is_simple_array($node)) {
+        } elsif ((is_neat_array($node) || is_array($node)) && !is_homogenous_simple_array($node)) {
             map {
                 my $child_len = max_key_length($_, $options, $indent + $options->{indentation}, $recursive);
                 my $key_len = $child_len;
@@ -391,7 +391,7 @@ sub render {
 
             $$wasref = $PARAM;
 
-        } elsif (is_simple_array($val)) {
+        } elsif (is_homogenous_simple_array($val)) {
             # escape individual array items
             my @a = map { render_scalar($_, $options, undef, 1) } @$val;
 
@@ -415,7 +415,7 @@ sub render {
 
             if (is_hash($val) && exists $val->{''}) {
                 my $default_value = $val->{''};
-                if (!is_scalar($default_value) && !is_simple_array($default_value)) {
+                if (!is_scalar($default_value) && !is_homogenous_simple_array($default_value)) {
                     die "Only scalar or simple array can be rendered as a default node value";
                 }
                 $$wasref = $PARAM;
@@ -448,7 +448,7 @@ sub render {
         my $sequential_keys;
 
         if (is_array($node) || is_neat_array($node)) {
-            if (is_simple_array($node)) {
+            if (is_homogenous_simple_array($node)) {
                 die "Can't render simple arrays as a main block content";
             } else {
                 $array_mode = 1;

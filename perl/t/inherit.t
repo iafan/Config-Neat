@@ -11,7 +11,7 @@ BEGIN {
 $| = 1; # disable output buffering;
 
 use File::Find;
-use File::Slurp;
+use File::Slurp::Tiny qw(read_file);
 use Getopt::Long;
 use Test::More 0.94;
 

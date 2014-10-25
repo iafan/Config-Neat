@@ -1,5 +1,17 @@
 Revision history for Config-Neat
 
+1.0     25 Oct 2014
+
+        - Added the support for 'LIST' schema type
+          to always cast single or multiple entries with the
+          same name to an array (list) of nested items
+
+        - Replace File::Slurp with File::Slurp::Tiny
+          (as per https://rt.cpan.org/Public/Bug/Display.html?id=95680)
+
+        - is_any_hash, is_any_array convenience functions
+          in Config::Neat::Util
+
 0.9     11 May 2014
 
         - Implemented proper cascaded inheritance

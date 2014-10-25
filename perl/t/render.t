@@ -10,7 +10,7 @@ BEGIN {
 
 $| = 1; # disable output buffering;
 
-use File::Slurp;
+use File::Slurp::Tiny qw(read_file);
 use Test::More 0.94;
 
 use_ok('Config::Neat');

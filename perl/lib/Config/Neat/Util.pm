@@ -14,7 +14,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Util;
 
-our $VERSION = '0.9';
+our $VERSION = '1.0';
 
 use strict;
 
@@ -29,11 +29,13 @@ our @EXPORT_OK = qw(
     is_code
     is_hash
     is_ixhash
+    is_any_hash
     is_array
     is_neat_array
+    is_any_array
     is_scalar
     is_simple_array
-    is_hash_of_hashes
+    is_homogenous_simple_array
     hash_has_only_sequential_keys
     hash_has_sequential_keys
     get_next_auto_key
@@ -80,6 +82,11 @@ sub is_ixhash {
     return ref(tied(%$node)) eq 'Tie::IxHash';
 }
 
+sub is_any_hash {
+    my $node = shift;
+    return is_hash($node) || is_ixhash($node);
+}
+
 sub is_array {
     my $node = shift;
     return ref($node) eq 'ARRAY';
@@ -90,12 +97,29 @@ sub is_neat_array {
     return ref($node) eq 'Config::Neat::Array';
 }
 
+sub is_any_array {
+    my $node = shift;
+    return is_array($node) || is_neat_array($node);
+}
+
 sub is_scalar {
     my $node = shift;
     return (ref(\$node) eq 'SCALAR') or (ref($node) eq 'SCALAR');
 }
 
 sub is_simple_array {
+    my $node = shift;
+
+    return 1 if is_scalar($node);
+    return undef unless is_array($node) || is_neat_array($node);
+
+    foreach my $value (@$node) {
+        return undef unless is_scalar($value);
+    }
+    return 1;
+}
+
+sub is_homogenous_simple_array {
     my $node = shift;
 
     return 1 if is_scalar($node);
@@ -113,16 +137,6 @@ sub is_simple_array {
         die "Mixing hashes with simple arrays/scalars within one node is not supported" if $contains_hash && $contains_scalar;
     }
     return $contains_scalar;
-}
-
-sub is_hash_of_hashes {
-    my $node = shift;
-    die "Not a hash" unless is_hash($node);
-
-    map {
-        return undef unless is_hash($node->{$_});
-    } keys %$node;
-    return 1;
 }
 
 sub hash_has_only_sequential_keys {

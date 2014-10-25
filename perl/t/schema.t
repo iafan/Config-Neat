@@ -16,6 +16,8 @@ use_ok('Config::Neat');
 use_ok('Config::Neat::Inheritable');
 use_ok('Config::Neat::Schema');
 
+use Config::Neat::Util qw(is_any_array is_any_hash);
+
 my $c = Config::Neat->new();
 ok($c, '$c is defined');
 
@@ -91,6 +93,30 @@ like($@, qr|^Can't cast '/foo/bar' to ARRAY, since it is a HASH containing non-s
 
 _load_conf('12');
 _validate_conf('12');
+
+_load_conf('13');
+_validate_conf('13');
+
+ok(is_any_array($data->{single_node})
+   && scalar(@{$data->{single_node}}) == 1
+   && is_any_array($data->{single_node}->[0])
+   && scalar(@{$data->{single_node}->[0]}) == 3,
+    '13.nconf: single_node is now an array containing one element: an array of scalars');
+
+_load_conf('14');
+_validate_conf('14');
+
+ok(is_any_array($data->{single_hash_node})
+   && scalar(@{$data->{single_hash_node}}) == 1
+   && is_any_hash($data->{single_hash_node}->[0])
+   && $data->{single_hash_node}->[0]->{foo} == 'bar baz',
+    '14.nconf: single_hash_node is now an array containing one element: a hash');
+
+ok(is_any_array($data->{repeating_hash_node})
+   && scalar(@{$data->{repeating_hash_node}}) == 2
+   && is_any_hash($data->{repeating_hash_node}->[0])
+   && $data->{repeating_hash_node}->[0]->{foo} == 'bar',
+    '14.nconf: repeating_hash_node remains intact');
 
 done_testing();
 

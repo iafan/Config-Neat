@@ -46,12 +46,12 @@ any arbitrary data structure and are not validated.
 
 package Config::Neat::Schema;
 
-our $VERSION = '0.9';
+our $VERSION = '1.0';
 
 use strict;
 
 use Config::Neat::Inheritable;
-use Config::Neat::Util qw(is_hash is_hash_of_hashes hash_has_sequential_keys);
+use Config::Neat::Util qw(new_ixhash is_hash is_any_hash is_any_array is_simple_array hash_has_sequential_keys);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Tie::IxHash;
@@ -142,8 +142,24 @@ sub validate_node {
     # skip (don't validate) DATA nodes
     return 1 if ($schema_type eq 'DATA');
 
+    if ($schema_type eq 'LIST') {
+        # if this is not a simple array of scalars, wrap as an array
+        if (is_simple_array($data_node) or !is_any_array($data_node)) {
+            $data_node = [$data_node];
+        }
+        # then, convert an array to an ixhash with sequential keys
+        my $h = new_ixhash;
+        my $i = 0;
+        map { $h->{$i++} = $_ } @$data_node;
+        $parent_data->{$parent_data_key} = $data_node = $h;
+
+        $data_type = 'HASH';
+        $schema_type = 'ARRAY';
+    }
+
     # see if automatic casting from HASH to ARRAY is possible
     my $cast_to_array;
+
     if ($schema_type eq 'ARRAY' and $data_type eq 'HASH') {
         die "Can't cast '$pathstr' to ARRAY, since it is a HASH containing non-sequential keys" unless hash_has_sequential_keys($data_node);
         $cast_to_array = 1;
