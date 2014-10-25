@@ -46,12 +46,12 @@ any arbitrary data structure and are not validated.
 
 package Config::Neat::Schema;
 
-our $VERSION = '1.0';
+our $VERSION = '1.1';
 
 use strict;
 
 use Config::Neat::Inheritable;
-use Config::Neat::Util qw(new_ixhash is_hash is_any_hash is_any_array is_simple_array hash_has_sequential_keys);
+use Config::Neat::Util qw(new_ixhash is_hash is_any_hash is_any_array is_simple_array is_neat_array hash_has_sequential_keys);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Tie::IxHash;
@@ -103,6 +103,9 @@ sub validate_node {
     my $schema_type = $self->get_node_type($schema_node);
     my $data_type = $self->get_node_type($data_node);
 
+    #print "::[$pathstr] schema_type=[$schema_type], data_type=[$data_type]\n";
+    #use Data::Dumper; print Dumper($data_node);
+
     if ($schema_type eq 'STRING') {
         # the node itself is already a scalar and contains the type definition
         $schema_type = $schema_node;
@@ -113,7 +116,7 @@ sub validate_node {
         # if it's a hash, the the string representation of the node's default parameter
         # may contain the type definition override
         my $val = $schema_node->{''};
-        $schema_type = $schema_node->{''}->as_string if ref($val) eq 'Config::Neat::Array';
+        $schema_type = $schema_node->{''}->as_string if is_neat_array($val);
         $schema_type = $schema_node->{''} if ref(\$val) eq 'SCALAR';
     }
 
@@ -194,7 +197,7 @@ sub validate_node {
 sub get_node_type {
     my ($self, $node) = @_;
     return 'HASH' if ref($node) eq 'HASH';
-    return 'ARRAY' if ref($node) eq 'Config::Neat::Array' or ref($node) eq 'ARRAY';
+    return 'ARRAY' if is_any_array($node);
     return 'STRING' if ref(\$node) eq 'SCALAR';
     return 'UNKNOWN';
 }

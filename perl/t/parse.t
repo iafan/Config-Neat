@@ -14,27 +14,43 @@ use Test::More 0.94;
 
 use_ok('Config::Neat');
 
+use Config::Neat::Util qw(is_any_array);
+
 my $c = Config::Neat->new();
 ok($c, '$c is defined');
 
 my $data;
 
-_load_conf('01');
-ok($data->{test1}->as_string eq 'foo1');
-ok($data->{test2}->as_string eq 'foo bar');
-ok($data->{test3}->as_string eq 'foo  bar');
-ok($data->{test4}->as_string eq '/* foo */');
-ok($data->{test5}->as_string eq '\/');
-ok($data->{test6}->as_string eq '`');
-ok($data->{test7}->as_string eq '`');
-ok($data->{test8}->as_string eq '\/x');
-ok($data->{test9}->as_string eq 'http:\/\/foo\.bar\.com\/baz\/');
-ok($data->{test10}->as_string eq 'foobar');
-ok($data->{test11}->as_string eq 'foo/* test */bar');
-ok($data->{test12}->as_string eq '\\\\/\\\\/\\\\/');
-ok(ref($data->{test_multi}) eq 'Config::Neat::Array');
-ok($data->{test_multi}[0]->as_string eq 'foo bar');
-ok($data->{test_multi}[1]->as_string eq 'baz etc');
+subtest '01.nconf' => sub {
+    _load_conf('01');
+
+    ok($data->{test1}->as_string eq 'foo1');
+    ok($data->{test2}->as_string eq 'foo bar');
+    ok($data->{test3}->as_string eq 'foo  bar');
+    ok($data->{test4}->as_string eq '/* foo */');
+    ok($data->{test5}->as_string eq '\/');
+    ok($data->{test6}->as_string eq '`');
+    ok($data->{test7}->as_string eq '`');
+    ok($data->{test8}->as_string eq '\/x');
+    ok($data->{test9}->as_string eq 'http:\/\/foo\.bar\.com\/baz\/');
+    ok($data->{test10}->as_string eq 'foobar');
+    ok($data->{test11}->as_string eq 'foo/* test */bar');
+    ok($data->{test12}->as_string eq '\\\\/\\\\/\\\\/');
+    ok(ref($data->{test_multi}) eq 'Config::Neat::Array');
+    ok($data->{test_multi}[0]->as_string eq 'foo bar');
+    ok($data->{test_multi}[1]->as_string eq 'baz etc');
+};
+
+subtest '02.nconf' => sub {
+    _load_conf('02');
+
+    ok(is_any_array($data->{repeating_node}));
+    ok(scalar(@{$data->{repeating_node}}) == 4);
+    ok($data->{repeating_node}->[0]->as_string eq 'foo');
+    ok($data->{repeating_node}->[1]->as_string eq 'bar');
+    ok($data->{repeating_node}->[2]->as_string eq 'baz');
+    ok($data->{repeating_node}->[3]->as_string eq 'etc');
+};
 
 done_testing();
 

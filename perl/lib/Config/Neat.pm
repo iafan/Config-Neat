@@ -71,7 +71,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat;
 
-our $VERSION = '1.0';
+our $VERSION = '1.1';
 
 use strict;
 
@@ -104,10 +104,9 @@ sub new {
 sub parse {
     my ($self, $nconf) = @_;
 
-    my $new = new_ixhash;
-
     my $o = {
-        context            => [$new],
+        context            => [new_ixhash],
+        context_data       => [{}],
         c                  => undef,
 
         pos                => 0,
@@ -121,29 +120,29 @@ sub parse {
         was_slash          => undef,
         was_asterisk       => undef,
         first_value_pos    => 0,
-        converted_to_array => undef,
     };
 
     my $in_raw_mode     = undef;
     my $line            = 1;
 
     sub end_of_param {
-        my $o = shift;
+        my ($o, $no_default_param) = @_;
 
         if ($o->{key} ne '') {
-            push @{$o->{values}}, 'YES' if scalar(@{$o->{values}}) == 0;
-            my $new = $o->{context}->[$#{$o->{context}}];
-            if (exists $new->{$o->{key}}) {
-                if (!$o->{converted_to_array}) {
-                    $new->{$o->{key}} = Config::Neat::Array->new([$new->{$o->{key}}]);
-                    $o->{converted_to_array} = 1;
+            push @{$o->{values}}, 'YES' if !$no_default_param && scalar(@{$o->{values}}) == 0;
+            my $current_ctx = $o->{context}->[$#{$o->{context}}];
+            my $data = $o->{context_data}->[$#{$o->{context_data}}];
+            if (exists $current_ctx->{$o->{key}}) {
+                $data->{is_array} = {} unless exists $data->{is_array};
+                if (!$data->{is_array}->{$o->{key}}) {
+                    $current_ctx->{$o->{key}} = Config::Neat::Array->new([$current_ctx->{$o->{key}}]);
+                    $data->{is_array}->{$o->{key}} = 1;
                 }
-                $new->{$o->{key}}->push($o->{values});
+                $current_ctx->{$o->{key}}->push($o->{values});
             } else {
-                $new->{$o->{key}} = $o->{values};
+                $current_ctx->{$o->{key}} = $o->{values};
             }
             $o->{values} = Config::Neat::Array->new();
-            $o->{converted_to_array} = undef;
             $o->{key} = '';
         }
     }
@@ -227,30 +226,22 @@ sub parse {
                 $o->{key} = get_next_auto_key($o->{context}->[$#{$o->{context}}]);
             }
 
-            my $new = new_ixhash;
+            my $old_values = $o->{values};
+            my $new_context = $o->{values} = new_ixhash;
 
-            my $current_ctx = $o->{context}->[$#{$o->{context}}];
-            if (exists $current_ctx->{$o->{key}}) {
-                if (!is_neat_array($current_ctx->{$o->{key}})) {
-                    $current_ctx->{$o->{key}} = Config::Neat::Array->new([$current_ctx->{$o->{key}}]);
-                }
-                $current_ctx->{$o->{key}}->push($new);
-            } else {
-                $current_ctx->{$o->{key}} = $new;
-            }
+            end_of_param($o, 1); # do not push a default parameter
 
-            push @{$o->{context}}, $new;
-
-            # any values preceding the block will be added into it with an empty key value
-            if (scalar(@{$o->{values}}) > 0) {
-                $new->{''} = $o->{values};
-            }
-
-            $o->{values} = Config::Neat::Array->new();
-            $o->{key} = '';
             $o->{value} = undef;
             $o->{mode} = $LINE_START;
             $o->{first_value_pos} = 0;
+
+            push @{$o->{context}}, $new_context;
+            push @{$o->{context_data}}, {};
+
+            # any values preceding the block will be added into it with an empty key value
+            if (scalar(@{$old_values}) > 0) {
+                $new_context->{''} = $old_values;
+            }
 
         } elsif ($c eq '}') {
             next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
@@ -267,6 +258,7 @@ sub parse {
                 die "Unmatched closing bracket at config line $line position $o->{pos}";
             }
             pop @{$o->{context}};
+            pop @{$o->{context_data}};
             $o->{mode} = $WHITESPACE;
             $o->{key} = '';
             $o->{values} = Config::Neat::Array->new();

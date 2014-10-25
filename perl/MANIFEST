@@ -95,6 +95,7 @@ t/data/inherit/tests/38.nconf
 t/data/inherit/tests/39.nconf
 t/data/inherit/tests/40.nconf
 t/data/parse/01.nconf
+t/data/parse/02.nconf
 t/data/render/output.nconf
 t/data/schema/01.nconf
 t/data/schema/02.nconf

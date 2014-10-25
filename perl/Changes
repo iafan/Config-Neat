@@ -1,5 +1,11 @@
 Revision history for Config-Neat
 
+1.1     26 Oct 2014
+
+        - Fixed and simplified parsing for repeating nodes
+
+        - More parsing tests; use subtests for better structuring
+
 1.0     25 Oct 2014
 
         - Added the support for 'LIST' schema type
