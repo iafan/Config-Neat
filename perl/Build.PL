@@ -21,6 +21,11 @@ my $builder = Module::Build->new(
     },
     add_to_cleanup           => ['Config-Neat-*', 'Makefile.PL', 'MYMETA.*', 'META.*'],
     create_makefile_pl       => 'traditional',
+    meta_merge               => {
+        resources            => {
+            repository       => 'https://github.com/iafan/Config-Neat',
+        },
+    },
 );
 
 $builder->create_build_script();
