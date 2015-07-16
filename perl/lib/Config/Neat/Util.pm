@@ -4,7 +4,7 @@ Config::Neat::Util - Common utility functions for other Config::Neat modules
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2014 Igor Afanasyev <igor.afanasyev@gmail.com>
+Copyright (C) 2012-2015 Igor Afanasyev <igor.afanasyev@gmail.com>
 
 =head1 SEE ALSO
 
@@ -14,7 +14,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Util;
 
-our $VERSION = '1.101';
+our $VERSION = '1.2';
 
 use strict;
 

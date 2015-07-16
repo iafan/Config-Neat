@@ -1,5 +1,3 @@
-# Copyright (C) 2013-2014 Igor Afanasyev, https://github.com/iafan/Config-Neat
-
 =head1 NAME
 
 Config::Neat::Schema - Validate Config::Neat files against schema
@@ -42,11 +40,19 @@ Possible type specifiers are: HASH (this is default if not specified),
 ARRAY, STRING, ARRAY_OR_HASH, STRING_OR_HASH, or DATA. 'DATA' nodes may contain
 any arbitrary data structure and are not validated.
 
+=head1 COPYRIGHT
+
+Copyright (C) 2012-2015 Igor Afanasyev <igor.afanasyev@gmail.com>
+
+=head1 SEE ALSO
+
+L<https://github.com/iafan/Config-Neat>
+
 =cut
 
 package Config::Neat::Schema;
 
-our $VERSION = '1.101';
+our $VERSION = '1.2';
 
 use strict;
 

@@ -61,7 +61,7 @@ Sample usage:
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2014 Igor Afanasyev <igor.afanasyev@gmail.com>
+Copyright (C) 2012-2015 Igor Afanasyev <igor.afanasyev@gmail.com>
 
 =head1 SEE ALSO
 
@@ -71,7 +71,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat;
 
-our $VERSION = '1.101';
+our $VERSION = '1.2';
 
 use strict;
 

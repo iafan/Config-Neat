@@ -1,5 +1,3 @@
-# Copyright (C) 2012-2014 Igor Afanasyev, https://github.com/iafan/Config-Neat
-
 =head1 NAME
 
 Config::Neat::Inheritable - Config::Neat files with inheritance
@@ -57,11 +55,19 @@ Multiple inheritance is supported; use '.' do denote the the current file:
 
     @inherit    01.nconf#foo 02.nconf#bar .#baz
 
+=head1 COPYRIGHT
+
+Copyright (C) 2012-2015 Igor Afanasyev <igor.afanasyev@gmail.com>
+
+=head1 SEE ALSO
+
+L<https://github.com/iafan/Config-Neat>
+
 =cut
 
 package Config::Neat::Inheritable;
 
-our $VERSION = '1.101';
+our $VERSION = '1.2';
 
 use strict;
 
