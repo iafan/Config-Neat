@@ -52,6 +52,11 @@ subtest '02.nconf' => sub {
     ok($data->{repeating_node}->[3]->as_string eq 'etc');
 };
 
+subtest '03.nconf' => sub {
+    _load_conf('03');
+    ok(!exists $data->{foo});
+};
+
 done_testing();
 
 sub _load_conf {

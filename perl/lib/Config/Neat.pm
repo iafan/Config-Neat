@@ -212,6 +212,10 @@ sub parse {
         my $c = $o->{c} = substr($nconf, $i, 1);
         $o->{pos}++;
 
+        if ($c ne '/') {
+            $o->{was_asterisk} = undef;
+        }
+
         if ($c eq '{') {
             next if ($o->{mode} == $LINE_COMMENT) or ($o->{mode} == $BLOCK_COMMENT);
 
