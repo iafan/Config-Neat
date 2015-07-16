@@ -18,6 +18,8 @@ our $VERSION = '1.101';
 
 use strict;
 
+no warnings qw(uninitialized);
+
 sub new {
     my ($class, $self) = @_;
     $self = [] unless defined $self && ref($self) eq 'ARRAY';
