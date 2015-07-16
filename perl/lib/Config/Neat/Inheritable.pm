@@ -65,6 +65,8 @@ our $VERSION = '1.101';
 
 use strict;
 
+no warnings qw(uninitialized);
+
 use Config::Neat;
 use Config::Neat::Util qw(new_ixhash is_hash is_ixhash to_ixhash is_neat_array get_next_auto_key
                           offset_keys get_keys_in_order reorder_ixhash rename_ixhash_key read_file);

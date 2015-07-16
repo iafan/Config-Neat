@@ -63,7 +63,7 @@ sub to_ixhash {
 
 sub is_number {
     my $n = shift;
-    return ($n + 0) eq $n;
+    return defined $n && $n =~ m/^\d+$/;
 }
 
 sub is_code {
@@ -169,7 +169,7 @@ sub get_next_auto_key {
     # get max(key)
     my $i = -1; # so that next key will start with 0
     map {
-        $i = $_ if $_ > $i && is_number($_);
+        $i = $_ if is_number($_) && $_ > $i;
     } keys %$node;
 
     # return max + 1

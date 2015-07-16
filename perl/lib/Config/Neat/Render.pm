@@ -180,10 +180,15 @@ our $VERSION = '1.101';
 
 use strict;
 
+no warnings qw(uninitialized);
+
 use Config::Neat::Util qw(new_ixhash is_number is_code is_hash is_array is_scalar
                           is_neat_array is_homogenous_simple_array hash_has_only_sequential_keys
                           hash_has_sequential_keys);
 use Tie::IxHash;
+
+my $PARAM = 1;
+my $BLOCK = 2;
 
 #
 # Initialize object
@@ -241,9 +246,6 @@ sub new {
 # @@@@@@@@
 sub render {
     my ($self, $data, $options) = @_;
-
-    my $PARAM = 1;
-    my $BLOCK = 2;
 
     $options = {} unless $options;
     %$options = (%{$self->{_options}}, %$options);
