@@ -57,6 +57,16 @@ subtest '03.nconf' => sub {
     ok(!exists $data->{foo});
 };
 
+subtest '04.nconf' => sub {
+    eval { _load_conf('04') };
+    like($@, qr|^Missing closing bracket at config line 4 position 25 |, '04.nconf validation should fail because of missing closing bracket');
+};
+
+subtest '05.nconf' => sub {
+    eval { _load_conf('05') };
+    like($@, qr|^Unmatched closing bracket at config line 5 position 1 |, '05.nconf validation should fail because of unmatched closing bracket');
+};
+
 done_testing();
 
 sub _load_conf {

@@ -258,7 +258,7 @@ sub parse {
             end_of_value($o);
             end_of_param($o);
 
-            if (scalar(@{$o->{context}}) == 0) {
+            if (scalar(@{$o->{context}}) == 1) {
                 die "Unmatched closing bracket at config line $line position $o->{pos}";
             }
             pop @{$o->{context}};
@@ -385,6 +385,8 @@ sub parse {
     }
 
     die "Unmatched backtick at config line $line position $o->{pos}" if $in_raw_mode;
+
+    die "Missing closing bracket at config line $line position $o->{pos}" if @{$o->{context}} > 1;
 
     end_of_value($o);
     end_of_param($o);
