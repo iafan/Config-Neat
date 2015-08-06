@@ -1,5 +1,12 @@
 Revision history for Config-Neat
 
+1.2     05 August 2015
+
+        - Fixed properly check for unmatched closing bracket, add corresponding test
+        - Added check and test case for missing closing bracket
+        - Fixed some warnings, mute 'unitialized' warnings where appropriate
+        - Fixed parsing of multi-line comments in this form:  /** / ... /**/
+
 1.101   26 Oct 2014
 
         - Bugfix: store 'converted to array' flags in a context-aware stack
