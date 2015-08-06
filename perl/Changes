@@ -1,5 +1,8 @@
 Revision history for Config-Neat
 
+1.202   05 August 2015
+        - Add missing test files to the distribution
+
 1.201   05 August 2015
         - Get rid of File::Slurp::Tiny in favor of simple read_file function
 
