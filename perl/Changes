@@ -1,5 +1,8 @@
 Revision history for Config-Neat
 
+1.203   05 August 2015
+        - Add missing 'JSON' dependency (used in `dump-nconf`)
+
 1.202   05 August 2015
         - Add missing test files to the distribution
 

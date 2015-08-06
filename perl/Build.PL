@@ -17,6 +17,7 @@ my $builder = Module::Build->new(
     },
     requires => {
         'Tie::IxHash'        => '1.22',
+        'JSON'               => 0,
     },
     add_to_cleanup           => ['Config-Neat-*', 'Makefile.PL', 'MYMETA.*', 'META.*'],
     create_makefile_pl       => 'traditional',
