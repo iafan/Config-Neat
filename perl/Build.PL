@@ -13,7 +13,6 @@ my $builder = Module::Build->new(
         'Module::Build'      => 0,
     },
     build_requires           => {
-        'File::Slurp::Tiny'  => 0,
         'Test::More'         => '0.94',
     },
     requires => {
