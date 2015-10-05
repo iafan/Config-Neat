@@ -1,5 +1,8 @@
 Revision history for Config-Neat
 
+1.204   04 October 2015
+        - Add `to_ixhash_recursive` helper function to Config::Neat::Util
+
 1.203   05 August 2015
         - Add missing 'JSON' dependency (used in `dump-nconf`)
 

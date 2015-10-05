@@ -14,7 +14,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Util;
 
-our $VERSION = '1.2';
+our $VERSION = '1.204';
 
 use strict;
 
@@ -25,6 +25,7 @@ our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(
     new_ixhash
     to_ixhash
+    to_ixhash_recursive
     is_number
     is_code
     is_hash
@@ -59,6 +60,17 @@ sub to_ixhash {
     my $new = new_ixhash;
     map { $new->{$_} = $node->{$_} } keys %$node;
     return $new;
+}
+
+sub to_ixhash_recursive {
+    my ($node) = @_;
+    my $result = is_hash($node) && !is_ixhash($node) ? to_ixhash($node) : $node;
+    if (is_ixhash($result)) {
+        map {
+            $result->{$_} = to_ixhash_recursive($result->{$_});
+        } keys %$result;
+    }
+    return $result;
 }
 
 sub is_number {
