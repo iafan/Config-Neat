@@ -120,6 +120,7 @@ CodeMirror.defineMode("configneat", function() {
 
       if (b.key) {
         if (b.key_start == ":") return "key-label";
+        if (b.key_start == "@") return "key-inherit";
         if (b.key_start == "+") return "key-merge";
         if (b.key_start == "-") return "key-delete";
         return "keyword";

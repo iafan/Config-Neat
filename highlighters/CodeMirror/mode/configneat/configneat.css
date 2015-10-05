@@ -1,4 +1,5 @@
 .cm-s-default span.cm-keyword     {color: #08c; }
+.cm-s-default span.cm-key-inherit {color: #f80; }
 .cm-s-default span.cm-key-label   {color: #f08; font-style: italic; }
 .cm-s-default span.cm-key-merge   {color: #0c0; }
 .cm-s-default span.cm-key-delete  {color: #c00; }
