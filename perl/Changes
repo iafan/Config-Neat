@@ -1,6 +1,6 @@
 Revision history for Config-Neat
 
-1.3     28 February 2017
+1.3     February 28, 2017
         - Fix issue #4 (Incorrect handling of LIST items with inheritance).
           Note that with this fix the internal raw representation of the
           arrays in the config data has changed, but the API masks that
@@ -10,36 +10,36 @@ Revision history for Config-Neat
         - Fix issue #5 (Validator will now die on bogus boolean values;
           previously it would only warn and continue)
 
-1.204   04 October 2015
+1.204   October 4, 2015
         - Add `to_ixhash_recursive` helper function to Config::Neat::Util
 
-1.203   05 August 2015
+1.203   August 5, 2015
         - Add missing 'JSON' dependency (used in `dump-nconf`)
 
-1.202   05 August 2015
+1.202   August 5, 2015
         - Add missing test files to the distribution
 
-1.201   05 August 2015
+1.201   August 5, 2015
         - Get rid of File::Slurp::Tiny in favor of simple read_file function
 
-1.2     05 August 2015
+1.2     August 5, 2015
 
         - Fixed properly check for unmatched closing bracket, add corresponding test
         - Added check and test case for missing closing bracket
         - Fixed some warnings, mute 'unitialized' warnings where appropriate
         - Fixed parsing of multi-line comments in this form:  /** / ... /**/
 
-1.101   26 Oct 2014
+1.101   October 26, 2014
 
         - Bugfix: store 'converted to array' flags in a context-aware stack
 
-1.1     26 Oct 2014
+1.1     October 26, 2014
 
         - Fixed and simplified parsing for repeating nodes
 
         - More parsing tests; use subtests for better structuring
 
-1.0     25 Oct 2014
+1.0     October 25, 2014
 
         - Added the support for 'LIST' schema type
           to always cast single or multiple entries with the
@@ -51,16 +51,16 @@ Revision history for Config-Neat
         - is_any_hash, is_any_array convenience functions
           in Config::Neat::Util
 
-0.9     11 May 2014
+0.9     May 11, 2014
 
         - Implemented proper cascaded inheritance
 
-0.8     10 May 2014
+0.8     May 10, 2014
 
         - Fix inheriting the same local paths from different files
           (save the file name as a part of the cache item key)
 
-0.7     11 April 2014
+0.7     April 11, 2014
 
         - Automatically convert merged node to an IxHash
           if necessary
@@ -72,14 +72,14 @@ Revision history for Config-Neat
         - Do not count the key length for the hash keys
           that don't have values
 
-0.6     12 March 2014
+0.6     March 12, 2014
 
         - Add the minimal version requirement for Test::More (0.94)
 
         - Must clone node before putting it into the cache;
           added test for multiple node reuse
 
-0.5     04 March 2014
+0.5     March 4, 2014
 
         - Report a proper error when trying to render objects
           of unsupported types
@@ -87,14 +87,14 @@ Revision history for Config-Neat
         - Tests no longer have any hardcoded paths in the
           reference data
 
-0.4     02 March 2014
+0.4     March 2, 2014
 
         - A more correct schema-based automatic casting
           from HASH to ARRAY (+ additional test)
 
         - Add File::Slurp to the list of build prerequisites
 
-0.3     28 February 2014
+0.3     February 28, 2014
 
         - By default, hashes are now merged (no need to set '+'
           prefix for the merged key); arrays, on the contrary,
@@ -111,7 +111,7 @@ Revision history for Config-Neat
 
         * Initial CPAN release *
 
-0.2     23 February 2014
+0.2     February 23, 2014
 
         - Support multiple key declarations at the same level
           (these will be converted to an array).
@@ -121,6 +121,6 @@ Revision history for Config-Neat
 ...
 
 
-0.0     22 September 2012
+0.0     September 22, 2012
 
         * Code published on GitHub *
