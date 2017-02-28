@@ -7,6 +7,9 @@ Revision history for Config-Neat
           change and stays the same; applying a schema to a config also
           ensures that the resulting data structure is correct
 
+        - Fix issue #5 (Validator will now die on bogus boolean values;
+          previously it would only warn and continue)
+
 1.204   04 October 2015
         - Add `to_ixhash_recursive` helper function to Config::Neat::Util
 

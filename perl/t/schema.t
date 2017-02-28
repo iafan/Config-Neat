@@ -91,10 +91,6 @@ subtest '08.nconf' => sub {
         !$data->{options}->{opt8} &&
         !$data->{options}->{opt9} &&
         !$data->{options}->{opt10}, '08.nconf: all false boolean values are false');
-
-    ok(
-        !$data->{options}->{opt11} &&
-        !$data->{options}->{opt12}, '08.nconf: all garbage boolean values are false');
 };
 
 subtest '09.nconf' => sub {
@@ -304,6 +300,12 @@ subtest '19.nconf' => sub {
         ok(is_scalar($node));
         ok($node eq 'a b c d e f');
     };
+};
+
+subtest '20.nconf' => sub {
+    _load_conf('20');
+    eval { $s->validate($data) };
+    like($@, qr|^'some garbage' is not a valid boolean number|, '20.nconf validation should fail because of the bogus boolean value');
 };
 
 done_testing();

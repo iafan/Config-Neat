@@ -144,7 +144,7 @@ sub validate_node {
 
     # automatic casting from ARRAY to BOOLEAN
     if ($schema_type eq 'BOOLEAN' and $data_type eq 'ARRAY') {
-        warn "Warning: '".$data_node->as_string."' is not a valid boolean number\n" unless $data_node->is_boolean;
+        die "'".$data_node->as_string."' is not a valid boolean number\n" unless $data_node->is_boolean;
         $parent_data->{$parent_data_key} = $data_node = $data_node->as_boolean;
         $data_type = $schema_type;
     }
