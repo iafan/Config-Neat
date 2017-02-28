@@ -16,9 +16,9 @@ use_ok('Config::Neat');
 use_ok('Config::Neat::Inheritable');
 use_ok('Config::Neat::Schema');
 
-use Config::Neat::Util qw(is_any_array is_any_hash);
+use Config::Neat::Util qw(is_scalar is_any_array is_neat_array is_simple_array is_any_hash);
 
-my $c = Config::Neat->new();
+my $c = Config::Neat::Inheritable->new();
 ok($c, '$c is defined');
 
 my $s = Config::Neat::Schema->new();
@@ -45,7 +45,7 @@ subtest '02.nconf' => sub {
 subtest '03.nconf' => sub {
     _load_conf('03');
     $s->validate($data);
-    ok(ref($data->{foo}->{etc}->{some_key}) eq 'ARRAY', '03.nconf: /foo/etc/some_key is now an array');
+    ok(is_neat_array($data->{foo}->{etc}->{some_key}), '03.nconf: /foo/etc/some_key is now a Config::Neat array');
 };
 
 subtest '04.nconf' => sub {
@@ -100,13 +100,13 @@ subtest '08.nconf' => sub {
 subtest '09.nconf' => sub {
     _load_conf('09');
     _validate_conf('09');
-    ok(ref($data->{jobs}) eq 'ARRAY', '09.nconf: /jobs is now an array of objects');
+    ok(is_neat_array($data->{jobs}), '09.nconf: /jobs is now a Config::Neat array');
 };
 
 subtest '10.nconf' => sub {
     _load_conf('10');
     _validate_conf('10');
-    ok(ref($data->{jobs}) eq 'ARRAY', '10.nconf: /jobs is now an array of objects');
+    ok(is_neat_array($data->{jobs}), '10.nconf: /jobs is now a Config::Neat array');
 };
 
 subtest '11.nconf' => sub {
@@ -166,6 +166,143 @@ subtest '14.nconf' => sub {
 
         ok(is_any_hash($data->{repeating_hash_node}->[1]));
         ok($data->{repeating_hash_node}->[1]->{baz} eq 'etc');
+    };
+};
+
+subtest '15.nconf' => sub {
+    _load_conf('15');
+    _validate_conf('15');
+
+    subtest '15.nconf: repeating_node' => sub {
+        #use Data::Dumper; print Dumper($data->{repeating_node});
+        ok(is_neat_array($data->{repeating_node}));
+        ok(scalar(@{$data->{repeating_node}}) == 2);
+
+        ok($data->{repeating_node}->as_string eq 'a1 b1 a3 b3');
+        my $flat_array = $data->{repeating_node}->as_flat_array;
+        ok($flat_array->[0] eq 'a1');
+        ok($flat_array->[1] eq 'b1');
+        ok($flat_array->[2] eq 'a3');
+        ok($flat_array->[3] eq 'b3');
+
+        ok(is_neat_array($data->{repeating_node}->[0]));
+        ok($data->{repeating_node}->[0]->[0] eq 'a1');
+        ok($data->{repeating_node}->[0]->[1] eq 'b1');
+
+        ok(is_neat_array($data->{repeating_node}->[1]));
+        ok($data->{repeating_node}->[1]->[0] eq 'a3');
+        ok($data->{repeating_node}->[1]->[1] eq 'b3');
+    };
+};
+
+subtest '16.nconf' => sub {
+    _load_conf('16');
+    _validate_conf('16');
+
+    subtest '16.nconf: repeating_node' => sub {
+        #use Data::Dumper; print Dumper($data->{repeating_node});
+        ok(is_neat_array($data->{repeating_node}));
+        ok(scalar(@{$data->{repeating_node}}) == 3);
+
+        ok($data->{repeating_node}->as_string eq 'a1 b1 a2 b2 a3 b3');
+        my $flat_array = $data->{repeating_node}->as_flat_array;
+        ok($flat_array->[0] eq 'a1');
+        ok($flat_array->[2] eq 'a2');
+        ok($flat_array->[4] eq 'a3');
+
+        ok(is_neat_array($data->{repeating_node}->[0]));
+        ok($data->{repeating_node}->[0]->[0] eq 'a1');
+        ok($data->{repeating_node}->[0]->[1] eq 'b1');
+
+        ok(is_neat_array($data->{repeating_node}->[1]));
+        ok($data->{repeating_node}->[1]->[0] eq 'a2');
+        ok($data->{repeating_node}->[1]->[1] eq 'b2');
+
+        ok(is_neat_array($data->{repeating_node}->[2]));
+        ok($data->{repeating_node}->[2]->[0] eq 'a3');
+        ok($data->{repeating_node}->[2]->[1] eq 'b3');
+    };
+};
+
+subtest '17.nconf' => sub {
+    _load_conf('17');
+    _validate_conf('17');
+
+    subtest '17.nconf: repeating_node' => sub {
+        #use Data::Dumper; print Dumper($data->{repeating_node});
+        ok(is_neat_array($data->{repeating_node}));
+        ok(scalar(@{$data->{repeating_node}}) == 3);
+
+        ok($data->{repeating_node}->as_string eq 'a1 b1 a3 b3 a4 b4');
+        my $flat_array = $data->{repeating_node}->as_flat_array;
+        ok($flat_array->[0] eq 'a1');
+        ok($flat_array->[2] eq 'a3');
+        ok($flat_array->[4] eq 'a4');
+
+        ok(is_neat_array($data->{repeating_node}->[0]));
+        ok($data->{repeating_node}->[0]->[0] eq 'a1');
+        ok($data->{repeating_node}->[0]->[1] eq 'b1');
+
+        ok(is_neat_array($data->{repeating_node}->[1]));
+        ok($data->{repeating_node}->[1]->[0] eq 'a3');
+        ok($data->{repeating_node}->[1]->[1] eq 'b3');
+
+        ok(is_neat_array($data->{repeating_node}->[2]));
+        ok($data->{repeating_node}->[2]->[0] eq 'a4');
+        ok($data->{repeating_node}->[2]->[1] eq 'b4');
+    };
+};
+
+subtest '18.nconf' => sub {
+    _load_conf('18');
+    _validate_conf('18');
+
+    subtest '18.nconf: repeating_node' => sub {
+        #use Data::Dumper; print Dumper($data->{repeating_node});
+        ok(is_neat_array($data->{repeating_node}));
+        ok(scalar(@{$data->{repeating_node}}) == 4);
+
+        ok($data->{repeating_node}->as_string eq 'a1 b1 a2 b2 a3 b3 a4 b4');
+        my $flat_array = $data->{repeating_node}->as_flat_array;
+        ok($flat_array->[0] eq 'a1');
+        ok($flat_array->[2] eq 'a2');
+        ok($flat_array->[4] eq 'a3');
+        ok($flat_array->[6] eq 'a4');
+
+        ok(is_neat_array($data->{repeating_node}->[0]));
+        ok($data->{repeating_node}->[0]->[0] eq 'a1');
+        ok($data->{repeating_node}->[0]->[1] eq 'b1');
+
+        ok(is_neat_array($data->{repeating_node}->[1]));
+        ok($data->{repeating_node}->[1]->[0] eq 'a2');
+        ok($data->{repeating_node}->[1]->[1] eq 'b2');
+
+        ok(is_neat_array($data->{repeating_node}->[2]));
+        ok($data->{repeating_node}->[2]->[0] eq 'a3');
+        ok($data->{repeating_node}->[2]->[1] eq 'b3');
+
+        ok(is_neat_array($data->{repeating_node}->[3]));
+        ok($data->{repeating_node}->[3]->[0] eq 'a4');
+        ok($data->{repeating_node}->[3]->[1] eq 'b4');
+    };
+};
+
+subtest '19.nconf' => sub {
+    _load_conf('19');
+    _validate_conf('19');
+
+    subtest '19.nconf: foo->bar' => sub {
+        my $node = $data->{foo}->{bar};
+        use Data::Dumper; print Dumper($node);
+        ok(is_simple_array($node));
+        ok(scalar(@$node) == 6);
+    };
+
+    subtest '19.nconf: foo->baz' => sub {
+        my $node = $data->{foo}->{baz};
+        #use Data::Dumper; print Dumper($node);
+        ok(is_scalar($node));
+        ok($node eq 'a b c d e f');
     };
 };
 

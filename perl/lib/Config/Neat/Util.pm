@@ -138,17 +138,20 @@ sub is_homogenous_simple_array {
     return undef unless is_array($node) || is_neat_array($node);
 
     my $contains_hash = undef;
+    my $contains_array = undef;
     my $contains_scalar = undef;
 
     foreach my $value (@$node) {
         if (is_hash($value)) {
             $contains_hash |= 1;
+        } elsif (is_any_array($value)) {
+            $contains_array |= 1;
         } else {
             $contains_scalar |= is_scalar($value);
         }
         die "Mixing hashes with simple arrays/scalars within one node is not supported" if $contains_hash && $contains_scalar;
     }
-    return $contains_scalar;
+    return $contains_scalar && !$contains_array;
 }
 
 sub hash_has_only_sequential_keys {

@@ -20,6 +20,8 @@ use strict;
 
 no warnings qw(uninitialized);
 
+use Config::Neat::Util qw(is_any_array is_neat_array);
+
 sub new {
     my ($class, $self) = @_;
     $self = [] unless defined $self && ref($self) eq 'ARRAY';
@@ -32,13 +34,47 @@ sub push {
     push @$self, @_;
 }
 
+# return a flattened one-dimensional array, where nested
+# Config::Neat arrays are expanded recursively
+sub as_flat_array {
+    my ($self) = @_;
+
+    # fist check if conversion will be needed
+    my $need_conversion;
+    foreach my $val (@$self) {
+        if (is_neat_array($val)) {
+            $need_conversion = 1;
+            last;
+        }
+    }
+    return $self unless $need_conversion;
+
+    # flatten the array recursively
+    my $result = Config::Neat::Array->new();
+    foreach my $val (@$self) {
+        if (is_neat_array($val)) {
+            $val = $val->as_flat_array;
+        }
+
+        if (is_any_array($val)) {
+            # expand arrays
+            push @$result, @$val;
+        } else {
+            #push scalars and hashes as is
+            push @$result, $val;
+        }
+    }
+    return $result;
+}
+
 # Given ['foo', 'bar', 'baz'] as the contents of the array, returns 'foo bar baz' string.
+# Array is flattened before being converted into a string.
 # If string starts from a newline and the next line is indented, remove that amount of spaces
 # from each line and trim leading and trailing newline
 sub as_string {
     my ($self) = @_;
 
-    my $val = join(' ', @$self);
+    my $val = join(' ', @{$self->as_flat_array});
     my $indent = undef;
     while ($val =~ m/\n(\s+)/g) {
         my $len = length($1);

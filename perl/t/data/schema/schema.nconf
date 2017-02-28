@@ -1,6 +1,7 @@
 foo
 {
     bar              ARRAY
+    baz              STRING
     etc
     {
         *            ARRAY

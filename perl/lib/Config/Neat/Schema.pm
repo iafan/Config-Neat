@@ -56,6 +56,7 @@ our $VERSION = '1.204';
 
 use strict;
 
+use Config::Neat::Array;
 use Config::Neat::Inheritable;
 use Config::Neat::Util qw(new_ixhash is_hash is_any_hash is_any_array is_simple_array is_neat_array hash_has_sequential_keys);
 use File::Spec::Functions qw(rel2abs);
@@ -178,6 +179,11 @@ sub validate_node {
         die "'$pathstr' is $data_type, while it is expected to be $schema_type";
     }
 
+    if ($data_type eq 'ARRAY') {
+        # flatten the array
+        $parent_data->{$parent_data_key} = $data_node->as_flat_array;
+    }
+
     if ($data_type eq 'HASH') {
         foreach my $key (keys %$data_node) {
             my @a = @$path;
@@ -194,7 +200,7 @@ sub validate_node {
 
     if ($cast_to_array) {
         my @a = values %$data_node;
-        $parent_data->{$parent_data_key} = \@a;
+        $parent_data->{$parent_data_key} = Config::Neat::Array->new(\@a);
     }
 
     return 1;

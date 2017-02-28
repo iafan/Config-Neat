@@ -74,8 +74,10 @@ use strict;
 no warnings qw(uninitialized);
 
 use Config::Neat;
-use Config::Neat::Util qw(new_ixhash is_hash is_ixhash to_ixhash is_neat_array get_next_auto_key
-                          offset_keys get_keys_in_order reorder_ixhash rename_ixhash_key read_file);
+use Config::Neat::Util qw(new_ixhash is_hash is_ixhash to_ixhash is_neat_array
+                          is_simple_array get_next_auto_key offset_keys
+                          get_keys_in_order reorder_ixhash rename_ixhash_key
+                          read_file);
 use File::Spec::Functions qw(rel2abs);
 use File::Basename qw(dirname);
 use Storable qw(dclone);
@@ -264,11 +266,11 @@ sub select_subnode {
 }
 
 sub _clone {
-	my $data = shift;
-	return ref($data) ? dclone($data) : $data;
+    my $data = shift;
+    return ref($data) ? dclone($data) : $data;
 }
 
-# merge into data1 tree structure from data2
+# merge tree structure from data2 into data1
 # data1 is the one that may contain `-key` and `+key` entries
 sub merge_data {
     my ($self, $data1, $data2, $dir) = @_;
@@ -277,6 +279,8 @@ sub merge_data {
         my @keys = get_keys_in_order($data2, $data1);
 
         foreach my $key (keys %$data1) {
+            my $base_key = $key =~ m/^[\+\-](.*)$/ ? $1 : $key;
+
             if ($key =~ m/^-(.*)$/) {
                 die "Key '$key' contains bogus data; expected an empty or true value" unless $data1->{$key}->as_boolean;
                 delete $data1->{$key};
@@ -284,12 +288,20 @@ sub merge_data {
                 next;
             }
 
-            # arrays are NOT merged by default; use `+key` will merge arrays
+            # arrays are NOT merged by default; use `+key` to merge arrays
             if (is_neat_array($data1->{$key})) {
                 if ($key =~ m/^\+(.*)$/) {
-                    if ((!exists $data2->{$1} || is_neat_array($data2->{$1}))) {
-                        $data1 = rename_ixhash_key($data1, $key, $1);
-                        $key = $1;
+                    if ((!exists $data2->{$base_key} || is_neat_array($data2->{$base_key}))) {
+                        $data1 = rename_ixhash_key($data1, $key, $base_key);
+                        $key = $base_key;
+                    }
+
+                    if (is_simple_array($data1->{$key}) && exists $data2->{$base_key}) {
+                        # we are about to merge two arrays; before doing so,
+                        # if the accumulator array is a simple one, we need to convert it
+                        # into an array, containing a single array ref, to maintain the
+                        # 'array of arrays' structure
+                        $data1->{$key} = Config::Neat::Array->new([$data1->{$key}]);
                     }
                 } else {
                     delete $data2->{$key};
@@ -298,8 +310,8 @@ sub merge_data {
 
             # hashes are merged by default; `+key { }` is the same as `key { }`
             if (is_hash($data1->{$key}) && ($key =~ m/^\+(.*)$/)) {
-                $data1 = rename_ixhash_key($data1, $key, $1);
-                $key = $1;
+                $data1 = rename_ixhash_key($data1, $key, $base_key);
+                $key = $base_key;
             }
 
             if (is_hash($data1->{$key}) && is_hash($data2->{$key})) {
@@ -318,7 +330,13 @@ sub merge_data {
         $data1 = to_ixhash($data1) unless is_ixhash($data1);
         $data1 = reorder_ixhash($data1, \@keys);
     } elsif (is_neat_array($data1) && is_neat_array($data2)) {
-        unshift(@$data1, @$data2);
+        # always push data as array ref, not as individual items
+        # to maintain 'array of arrays' structure
+        if (is_simple_array($data2)) {
+            unshift(@$data1, $data2);
+        } else {
+            unshift(@$data1, @$data2);
+        }
     }
 
     return $data1;
