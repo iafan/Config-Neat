@@ -1,5 +1,12 @@
 Revision history for Config-Neat
 
+1.3     28 February 2017
+        - Fix issue #4 (Incorrect handling of LIST items with inheritance).
+          Note that with this fix the internal raw representation of the
+          arrays in the config data has changed, but the API masks that
+          change and stays the same; applying a schema to a config also
+          ensures that the resulting data structure is correct
+
 1.204   04 October 2015
         - Add `to_ixhash_recursive` helper function to Config::Neat::Util
 
