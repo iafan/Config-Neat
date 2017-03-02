@@ -52,7 +52,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Schema;
 
-our $VERSION = '1.3';
+our $VERSION = '1.301';
 
 use strict;
 
