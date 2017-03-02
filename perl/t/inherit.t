@@ -60,7 +60,7 @@ foreach my $test_filename (@nconf_files) {
                 ok($text1, '$text1 is defined');
             }
 
-            write_file($reference_filename, {binmode => ':utf8'}, $text1);
+            write_file($reference_filename, $text1);
             ok(-f $reference_filename, "$reference_filename file should exist");
         } else {
             # test mode: read and compare reference file
@@ -113,4 +113,12 @@ sub read_file {
     my $text = join('', <IN>);
     close(IN);
     return $text;
+}
+
+sub write_file {
+    my ($filename, $text) = @_;
+    open(OUT, '>'.$filename);
+    binmode(OUT, ':utf8');
+    print OUT $text;
+    close(OUT);
 }
