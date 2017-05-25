@@ -352,7 +352,9 @@ sub render {
 
         if (!defined $scalar) {
             $scalar = $options->{undefined_value};
-        } elsif ($scalar eq '') {
+        }
+
+        if ($scalar eq '') {
             $scalar = '``';
         }
 
