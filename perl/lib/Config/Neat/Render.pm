@@ -322,18 +322,18 @@ sub render {
             my $l = $line ? length($line) + 1 : 0;
 
             if ($l + length($item) > $wrap_width) {
-                push(@a, $line) if $line;
+                push(@a, $line) if $line ne '';
                 $line = '';
             }
 
             if (length($item) >= $wrap_width) {
                 push(@a, $item);
             } else {
-                $line .= ' ' if $line;
+                $line .= ' ' if $line ne '';
                 $line .= $item;
             }
         }
-        push(@a, $line) if $line;
+        push(@a, $line) if $line ne '';
 
         return join("\n".(' ' x $indent), @a);
     }
@@ -360,7 +360,7 @@ sub render {
             $scalar = '`'.$scalar.'`';
         }
 
-        if (!$should_escape and $scalar) {
+        if (!$should_escape and $scalar ne '') {
             my @a = split(/\s+/, $scalar);
             return render_wrapped_array(\@a, $options, $indent);
         }
