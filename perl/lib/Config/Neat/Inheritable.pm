@@ -189,6 +189,7 @@ sub expand_data {
             my $intermediate = new_ixhash;
 
             foreach my $from (@a) {
+                my $orig_from = $from;
                 my ($filename, $selector) = split('#', $from, 2);
                 # allow .#selector style to indicate the current file, since #selector
                 # without the leading symbol will be treated as a comment line
@@ -203,7 +204,11 @@ sub expand_data {
 
                 # make sure we don't have any infinite loops
                 map {
-                    die "Infinite loop detected at `\@inherit $from`" if $from eq $_;
+                    if ($from eq $_) {
+                        print "Infinite loop detected in $self->{fullpath} at `\@inherit $orig_from`\n";
+                        print "\@include stack:\n", join("\n", @{$self->{include_stack}}), "\n\n";
+                        die;
+                    }
                 } @{$self->{include_stack}};
 
                 push @{$self->{include_stack}}, $from;
