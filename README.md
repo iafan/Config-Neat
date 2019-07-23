@@ -1,5 +1,4 @@
-About Config::Neat
-==================
+# About Config::Neat
 
 Configuration files don't have to be ugly. Inspired by
 [nginx configuration files](http://wiki.nginx.org/FullExample)
@@ -14,6 +13,7 @@ implement automatic configuration file inheritance (aka includes)
 and validation against schema (see below).
 
 ### Simple Syntax Example
+
 In its simplest form, the configuration file can look like this:
 
     # Server configuration
@@ -26,6 +26,7 @@ You are not forced to enclose strings in quotes, or specify delimiters
 at the end of each line; you will never need to escape single or double quotes.
 
 ### Robust Syntax Example
+
 When it comes to having different (even nested) sections,
 multiline lists or strings, block comments, Config::Neat will
 offer you such an opportunity:
@@ -62,11 +63,11 @@ offer you such an opportunity:
     }
 
 ### Full Syntax Example
+
 See `sample/readme.nconf` file, which gives a full overview
 of the supported syntax.
 
-Perl Module
------------
+## Perl Module
 
 Perl module is located in `perl/lib` subdirectory.
 It depends on [Tie::IxHash](http://search.cpan.org/~chorny/Tie-IxHash/)
@@ -92,7 +93,6 @@ module available from CPAN.
     #
     # $log_format now is a scalar:
     #     '$remote_addr - $remote_user [$time] $status $size $request'
-
 
 ## Config::Neat::Inheritable
 
@@ -199,8 +199,7 @@ And now the output will be:
 
 Alternatively, setting `sort` to a true value will just sort keys alphabetically.
 
-Tools
------
+## Tools
 
 ### [dump-nconf](perl/bin/dump-nconf)
 
@@ -209,13 +208,14 @@ and emit the parsed data structure in either Config::Neat::Render, Data::Dumper
 or JSON format. This script can be used to validate the syntax of the
 configuration file and understand its internal tree representation.
 
-Syntax Highlighters
-------------
+## Syntax Highlighters
 
-There are two syntax highlighters available (see the `highlighters` folder) —
-for [Sublime Text](http://www.sublimetext.com/) desktop editor
-(also compatible with [TextMate](http://macromates.com/)), and for
-JavaScript-based editor called [CodeMirror](http://codemirror.net/).
+There are a few syntax highlighters available (see the `highlighters` folder):
+
+1. for [Sublime Text](http://www.sublimetext.com/) desktop editor
+   (also compatible with [TextMate](http://macromates.com/))
+2. for [Visual Studio Code](https://code.visualstudio.com)
+3. for JavaScript-based editor called [CodeMirror](http://codemirror.net/).
 
 You can also use CodeMirror with Config::Neat highlighter to
 [statically highlight](http://codemirror.net/demo/runmode.html)

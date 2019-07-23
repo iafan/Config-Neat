@@ -1,0 +1,30 @@
+{
+    "name": "nconf",
+    "displayName": "Config-Neat",
+    "description": "Config::Neat Syntax Highlighter",
+    "version": "1.0",
+    "publisher": "iafan",
+    "engines": {
+        "vscode": "^1.13.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "nconf",
+            "aliases": ["Config-Neat", "nconf"],
+            "extensions": [".nconf", ".neat"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "nconf",
+            "scopeName": "source.nconf",
+            "path": "./syntaxes/nconf.tmLanguage"
+        }]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/iafan/Config-Neat"
+    }
+}
