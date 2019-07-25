@@ -67,7 +67,7 @@ L<https://github.com/iafan/Config-Neat>
 
 package Config::Neat::Inheritable;
 
-our $VERSION = '1.302';
+our $VERSION = '1.4';
 
 use strict;
 

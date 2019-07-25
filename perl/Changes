@@ -1,6 +1,7 @@
 Revision history for Config-Neat
 
-1.303   Pending release
+1.4     July 24, 2019
+        - Allow rendering of keys with spaces
         - Provide better error reporting on infinite @inherit loop errors
 
 1.302   May 25, 2017
