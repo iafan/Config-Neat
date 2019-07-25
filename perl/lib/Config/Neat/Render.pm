@@ -278,6 +278,11 @@ sub render {
                     # if it doesn't contain default values (which we want to align as well)
                 } else {
                     $key_len = $indent + length($key);
+                    # if the key contains spaces and will be wrapped
+                    # with `...`, add two extra symbols
+                    if ($key =~ m/\s/) {
+                        $key_len += 2;
+                    }
                     $len = $key_len if $key_len > $len;
                 }
 
@@ -382,7 +387,10 @@ sub render {
         my $text = '';
         my $space_indent = (' ' x $indent);
 
-        die "Keys should not conain whitespace" if ($key =~ m/\s/);
+        # if the key name contains whitespace, wrap it in backticks
+        if ($key =~ m/\s/) {
+            $key = "`$key`";
+        }
 
         if (is_scalar($val)) {
             $text .= "\n" if ($$wasref == $BLOCK) and $options->{separate_blocks};
