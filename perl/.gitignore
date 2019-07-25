@@ -1,7 +1,9 @@
+*.bak
 Build
 Build.bat
 _build
 blib
+MANIFEST
 META.*
 MYMETA.*
 Makefile.PL
