@@ -205,9 +205,10 @@ sub expand_data {
                 # make sure we don't have any infinite loops
                 map {
                     if ($from eq $_) {
-                        print "Infinite loop detected in $self->{fullpath} at `\@inherit $orig_from`\n";
-                        print "\@include stack:\n", join("\n", @{$self->{include_stack}}), "\n\n";
-                        die;
+                        my $err =
+                            "Infinite loop detected in $self->{fullpath} at `\@inherit $orig_from`\n".
+                            "\@include stack:\n", join("\n", @{$self->{include_stack}}), "\n\n";
+                        die $err;
                     }
                 } @{$self->{include_stack}};
 
