@@ -107,7 +107,7 @@ sub rectify_error_string {
     $s =~ s/ at \S+? line \d+\.$//;
 
     # replace paths to nconf files to stabilize the output
-    $s =~ s/[\S]+\/([\w\d]+\.nconf)/<\/path\/to\/>$1/sg;
+    $s =~ s/[\S]+[\\\/]([\w\d]+\.nconf)/<\/path\/to\/>$1/sg;
     return $s;
 }
 
