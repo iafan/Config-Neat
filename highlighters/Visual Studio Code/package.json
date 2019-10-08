@@ -2,7 +2,7 @@
     "name": "nconf",
     "displayName": "Config-Neat",
     "description": "Config::Neat Syntax Highlighter",
-    "version": "1.0",
+    "version": "1.0.0",
     "publisher": "iafan",
     "engines": {
         "vscode": "^1.13.0"
