@@ -8,20 +8,30 @@
         "vscode": "^1.13.0"
     },
     "categories": [
-        "Languages"
+        "Programming Languages"
     ],
     "contributes": {
-        "languages": [{
-            "id": "nconf",
-            "aliases": ["Config-Neat", "nconf"],
-            "extensions": [".nconf", ".neat"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "nconf",
-            "scopeName": "source.nconf",
-            "path": "./syntaxes/nconf.tmLanguage"
-        }]
+        "languages": [
+            {
+                "id": "nconf",
+                "aliases": [
+                    "Config-Neat",
+                    "nconf"
+                ],
+                "extensions": [
+                    ".nconf",
+                    ".neat"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "nconf",
+                "scopeName": "source.nconf",
+                "path": "./syntaxes/nconf.tmLanguage"
+            }
+        ]
     },
     "repository": {
         "type": "git",
