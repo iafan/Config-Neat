@@ -2,6 +2,6 @@
 
 #### Usage:
 
-Copy the contents of this directory under `<home-directory>/.vscode/nconf` and restart Visual Studio Code.
+Copy the contents of this directory under `<home-directory>/.vscode/extensions/nconf` and restart Visual Studio Code.
 
 The highlighter will be applied automatically to all files with `.nconf` and `.neat` extensions.
