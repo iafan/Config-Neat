@@ -123,7 +123,7 @@ This module allows you render Config::Neat-compatible structures from your data
 
 ### When shoud I NOT use it?
 
-Do not use it for arbitrary data serialization/desrialization.
+Do not use it for arbitrary data serialization/deserialization.
 JSON and YAML will work better for this kind of task.
 
 Why? Because Config::Neat was primarily designed to allow easier configuration
